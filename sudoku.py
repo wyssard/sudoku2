@@ -68,6 +68,22 @@ class Sudoku:
         return success
 
 
+    def _reduce_one(self, tile: Tile) -> bool:
+        success = False
+        
+        if tile.n_options == 1:
+            for kind in self.containers:
+                container = getattr(self, kind)[getattr(tile, kind)]
+                for tile_index in container:
+                    c_tile = self.tiles[tile_index]
+                    if tile.options.issubset(c_tile.options) and c_tile.n_options > 1:
+                        print(f"remove {tile.options} at ({tile.r}, {tile.c}) from {c_tile.options}")
+                        c_tile.options -= tile.options
+                        success = True
+
+        return success
+
+
     def _reduce_options(self, tile: Tile, n: int) -> bool:
         success = False
         if tile.n_options == n:
@@ -80,63 +96,58 @@ class Sudoku:
                         
         return success
 
+    def _cleanup_reduction(self, container: List[int]) -> bool:
+        success = False
+        nums = [[] for _ in range(9)]
 
-    def _extract_singles(self, tile: Tile) -> bool:
-        # THIS METHODS IS STRAIGHT UP WRONG
+        for tile_index in container:
+            tile = self.tiles[tile_index]
+            for o in tile.options:
+                nums[o-1].append(tile_index)
+        
+        # print("\n".join(f"{n+1}: {len(v)}" for n,v in enumerate(nums)))
+        for n, tile_indices in enumerate(nums):
+            if len(tile_indices) == 1:
+                t_tile = self.tiles[tile_indices[-1]]
+                if len(t_tile.options) > 1:
+                    t_tile.options = set([n+1])
+                # print(f"tile {tile_indices[-1]} is the only one in container with option {n+1}")
 
-        match = None
-        for kind in self.containers:
-            container = getattr(self, kind)[getattr(tile, kind)]
-            for tile_index in container:
-                c_tile = self.tiles[tile_index]
-                if tile.n_options == c_tile.n_options-1:
-                    if tile.options.issubset(c_tile.options):
-                        if not match:
-                            match = c_tile
-                        else:
-                            break
+                    success = True
 
-        if match:
-            print(f"found options {match.options}, remove options {tile.options}")
-            match.options = match.options - tile.options
-            print(f"it remains {match.options}")
-            return True
-        else:
-            return False
+        return success
 
 
-    def _return_as_list(self) -> List[int]:
-        return [t.options for t in self.tiles]
+    def _return_options(self) -> List[int]:
+        all =  [t.options for t in self.tiles]
+        return [all[9*r:9*(r+1)] for r in range(9)]
 
+
+    def _format(self, optionslist):
+        return "\n".join(["| ".join(f"{str(e):<{2*(self.max_options+1)+self.max_options-1}}" for e in row) for row in optionslist])
+
+
+    def __str__(self):
+        return self._format(self._return_options())
 
     def solve(self, n) -> List[int]:
         if self.max_options == 1:
-            return self._return_as_list()
+            return self._return_options()
+
+        elif self.emergency_count > 0:
+            print("couldn't solve")
+            return self._return_specific_only(self._fewest_option())
         
         elif n > self.max_options:
-            self.emergency_count += 1
-            self.max_options = 0
-            for tile_index in range(81):
-                tile = self.tiles[tile_index]
+            self.emergency_count = 1
+            for kind in self.containers:
+                for i in range(9):
+                    container = getattr(self, kind)[i]
+                    if self._cleanup_reduction(container):
+                        print("clean-up")
+                        self.emergency_count = 0
                 
-                self._extract_singles(tile)
-
-                self.max_options = max(self.max_options, tile.n_options)
-
             return self.solve(1)
-        
-        elif self.emergency_count > 1:
-            print("couldnt solve")
-            # print([t.n_options for t in self.tiles])
-            # return self._return_as_list()
-            print("len check:")
-            for t in range(81):
-                tile = self.tiles[t]
-                if not len(tile.options) == tile.n_options:
-                    print("len issue discovered")
-
-            print("opitons:")
-            return self._return_as_list()
 
         else:
             n_success = 0
@@ -145,6 +156,7 @@ class Sudoku:
                 tile = self.tiles[tile_index]
                 if self._reduce_options(tile, n):
                     n_success += 1
+                    print(f"n = {n} reduction")
                 
                 self.max_options = max(self.max_options, tile.n_options)
 
@@ -152,6 +164,39 @@ class Sudoku:
                 return self.solve(1)
             else:
                 return self.solve(n+1)
+
+    def _fewest_option(self):
+        appearances = [0]*9
+        for tile in self.tiles:
+            for o in tile.options:
+                appearances[o-1] += 1
+        
+        return appearances.index(min(appearances))+1
+
+    def validate(self) -> bool:
+        goal = set(range(1,10))
+        for kind in self.containers:
+            for container in getattr(self, kind):
+                options = set()
+                for tile_index in container:
+                    options |= self.tiles[tile_index].options
+                
+                if not options == goal:
+                    return False
+        
+        return True
+
+
+    def _tow_three_rule(self, container: List[int], search_in: str, n: int):
+        pass
+
+
+    def _return_specific_only(self, which: int):        
+        return [[opts if which in opts else None for opts in row] for row in self._return_options()]
+
+    def print_specific_only(self):
+        print(self._format(self._return_specific_only(self._fewest_option())))
+
   
 def solve(sudoku: Sudoku) -> List[int]:
     return sudoku.solve(1)
@@ -164,5 +209,9 @@ def load(path: Path) -> Sudoku:
     return Sudoku(content)
 
 
+
 if __name__=="__main__":
-    print(solve(load("example.csv")))
+    s = load("evil.csv")
+    print(s._format(solve(s)))
+
+    print(s.validate())
