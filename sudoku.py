@@ -47,15 +47,43 @@ class Sudoku:
                 for o in tile.options:
                     counter[o-1].add(tile_index)
                 
+    # def _update_counter(self, tile_index: int, remove_options: set):
+    #     tile = self.tiles[tile_index]
+    #     for kind in self.containers:
+    #         counter = getattr(self, f"{kind}_count")[getattr(tile, kind)]
+    #         for o in remove_options:
+    #             where_option_is_found = counter[o-1]
+    #             where_option_is_found.remove(tile_index)
+    #             if len(where_option_is_found) == 1:
+    #                 self.tiles[list(where_option_is_found)[0]].options = set([o])
+    #                 counter[o-1] = set()
+    #                 print("clean-up")
+
     def _update_counter(self, tile_index: int, remove_options: set):
         tile = self.tiles[tile_index]
         for kind in self.containers:
             counter = getattr(self, f"{kind}_count")[getattr(tile, kind)]
             for o in remove_options:
                 where_option_is_found = counter[o-1]
-                where_option_is_found.remove(tile_index)
-                if len(where_option_is_found) == 1:
-                    self.tiles[list(where_option_is_found)[0]].options = set([o])
+                where_option_is_found -= set([tile_index])
+
+    def _clear_superfluous(self) -> bool:
+        success = False
+        for kind in self.containers:
+            counters = getattr(self, f"{kind}_count")
+            for counter in counters:
+                for n, tiles in enumerate(counter):
+                    if len(tiles)==1:
+                        tile = self.tiles[list(tiles)[0]]
+                        diff = tile.options - set([n+1])
+                        self._update_counter(list(tiles)[0], diff)
+                        tile.options = set([n+1])
+                        counter[n] = set()
+                        success = True
+        
+        return success
+                
+
 
     def _match_tiles(self, where: List[int], which: Tile) -> Set[int]:
         matches = set()
@@ -74,21 +102,6 @@ class Sudoku:
         else:
             return False
 
-    # def _reduce_one(self, tile: Tile) -> bool:
-    #     success = False
-        
-    #     if tile.n_options == 1:
-    #         for kind in self.containers:
-    #             container = getattr(self, kind)[getattr(tile, kind)]
-    #             for tile_index in container:
-    #                 c_tile = self.tiles[tile_index]
-    #                 if tile.options.issubset(c_tile.options) and c_tile.n_options > 1:
-    #                     print(f"remove {tile.options} at ({tile.r}, {tile.c}) from {c_tile.options}")
-    #                     c_tile.options -= tile.options
-    #                     success = True
-
-    #     return success
-
     def _reduce_options(self, tile: Tile, n: int) -> bool:
         success = False
         if tile.n_options == n:
@@ -102,43 +115,45 @@ class Sudoku:
                         
         return success
 
-    # def _cleanup_superfluous(self):
-    #     success = False
-    #     for kind in self.containers:
-    #         counters = getattr(self, f"{kind}_count")
-    #         for kind_counter in counters:
 
-    #         for n, tile_indices in enumerate(counter):
-    #             if len(tile_indices) == 1:
-    #                 tile_index = tile_indices[-1]
-    #                 tile = self.tiles[tile_index]
-    #                 if len(tile.options) > 1:
-    #                     if self._remove_options(tile_index, tile.options - set([n+1])):
-    #                         success = True
-                        
-    #     return success
-                        
-
-    # def _cleanup_reduction(self, container: List[int]) -> bool:
-    #     success = False
-    #     nums = [[] for _ in range(9)]
-
-    #     for tile_index in container:
-    #         tile = self.tiles[tile_index]
-    #         for o in tile.options:
-    #             nums[o-1].append(tile_index)
+    def _cross_reduction_rc_finder(self, kind: str, option: int):
+        counters = getattr(self, f"{kind}_count")
+        doubles = []
+        for counter in counters:
+            if len(tiles:=counter[option-1]) == 2:
+                doubles.append(tiles)
         
-    #     # print("\n".join(f"{n+1}: {len(v)}" for n,v in enumerate(nums)))
-    #     for n, tile_indices in enumerate(nums):
-    #         if len(tile_indices) == 1:
-    #             t_tile = self.tiles[tile_indices[-1]]
-    #             if len(t_tile.options) > 1:
-    #                 t_tile.options = set([n+1])
-    #             # print(f"tile {tile_indices[-1]} is the only one in container with option {n+1}")
+        return doubles
 
-    #                 success = True
 
-    #     return success
+    def _cross_reduction(self, kind: str, option: int):
+        alt_kind = ["r", "c"]
+        alt_kind.remove(kind)
+        alt_kind = alt_kind[0]
+        if (doubles:=self._cross_reduction_rc_finder(kind, option)):
+            for tiles in doubles:
+                alt_kind_indices = [getattr(self.tiles[index], alt_kind) for index in tiles]
+                # print(f"double occurance of {option} in {kind} {getattr(self.tiles[list(tiles)[0]], kind)+1} at {tiles} in {alt_kind} {alt_kind_indices}")
+                alt_counter = getattr(self, f"{alt_kind}_count")
+                second_tiles = set()
+                for i in (0,1):
+                    if len(app_tiles:=alt_counter[alt_kind_indices[i]][option-1]) == 2:
+                        second_tiles.add(list(app_tiles-tiles)[0])
+                
+                # print(f"second tiles {second_tiles}")
+                if not len(second_tiles) == 2:
+                    continue
+
+                second_tiles_kind_index = [getattr(self.tiles[index], kind) for index in second_tiles]
+                if (scidx:=second_tiles_kind_index[0]) == second_tiles_kind_index[1]:
+                    if len(all_tiles:=getattr(self, f"{kind}_count")[scidx][option-1]) == 3:
+                        outer_tile = list(all_tiles-second_tiles)[0]
+                        self._remove_options(outer_tile, set([option]))
+                        return True
+                    
+
+        else:
+            return False
 
     def _return_options(self) -> List[int]:
         all =  [t.options for t in self.tiles]
@@ -151,19 +166,40 @@ class Sudoku:
         return self._format(self._return_options())
 
     def solve(self, n) -> List[int]:
+        # self._clear_superfluous()
+
         if self.max_options == 1:
             return self._return_options()
 
-        elif n > self.max_options:
-        # elif self.emergency_count > 0:
+        # elif n > self.max_options:
+        elif self.emergency_count == 2:
             print("couldn't solve")
             return self._return_specific_only(self._fewest_option())
+
+        elif self.emergency_count == 1:
+            self.emergency_count = 2
+            for o in range(1, 10):
+                for kind in ("r", "c"):
+                    if self._cross_reduction(kind, o):
+                        print("cross-reduction")
+                        self.emergency_count = 0
+
+            self.solve(1)
         
+        elif n > self.max_options:
+            self.emergency_count = 1
+            if self._clear_superfluous():
+                print("clean-up")
+                self.emergency_count = 0
+
+            self.solve(1)
+
         # elif n > self.max_options:
         #     self.emergency_count = 1
-        #     if self._cleanup_superfluous():
-        #         print("clean-up")
-        #         self.emergency_count = 0
+        #     for o in range(1, 10):
+        #         for kind in ("r", "c"):
+        #             if self._cross_reduction(kind, o):
+        #                 self.emergency_count = 0
                 
         #     return self.solve(1)
 
@@ -204,42 +240,6 @@ class Sudoku:
         
         return True
 
-    # def _two_tree_next_to_check(self, container: List[int], option: int) -> list:
-    #     check_next = []
-    #     for tile_index in container:
-    #         c_tile = self.tiles[tile_index]
-    #         if (c_tile.n_options > 1) and (option in c_tile.options):
-    #             check_next.append(c_tile)
-
-    #     return check_next
-
-
-
-    # def _two_three_base(self, tile: Tile, option: int) -> bool:
-    #     directions = ("r", "c")
-    #     if (tile.n_options > 1) and (option in tile.options):
-    #         for direction, alt_direction in (("r", "c"), ("c", "r")):
-    #             container = getattr(self, direction)[getattr(tile, direction)]
-    #             check_next = []
-    #             for tile_index in container:
-    #                 c_tile = self.tiles[tile_index]
-    #                 if (c_tile.n_options > 1) and (option in c_tile.options):
-    #                     check_next.append(c_tile)
-
-    #             if len(check_next) == 2:
-    #                 for n_tile in check_next:
-    #                     container = getattr(self, alt_direction)[getattr(n_tile, alt_direction)]
-
-
-                
-        
-    #     else:
-    #         return False
-                    
-
-
-    # def _tow_three_rule(self, tile: Tile) -> bool:
-    #     pass
 
     def _return_specific_only(self, which: int):        
         return [[opts if which in opts else None for opts in row] for row in self._return_options()]
@@ -261,8 +261,9 @@ def load(path: Path) -> Sudoku:
 
 
 if __name__=="__main__":
-    s = load("evil.csv")
-    print(s._format(solve(s)))
+    s = load("hard.csv")
+    # (s._format(solve(s)))
+    solve(s)
     print(s)
-    print(s.s_count[8])
+    print(s.c_count[5])
     print(s.validate())
