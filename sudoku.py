@@ -2,6 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 from csv import reader
+from colorsys import hsv_to_rgb
 
 def index_to_pos(t):
     return {"r": (r:=t//9), "c": (c:=t%9), "s": 3*(r//3) + c//3}
@@ -51,7 +52,6 @@ class Sudoku:
                 for o in tile.options:
                     counter[o-1].add(tile_index)
     
-
     def _update_counter(self, tile_index: int, remove_options: set):
         tile = self.tiles[tile_index]
         for kind in self.kinds:
@@ -59,7 +59,6 @@ class Sudoku:
             for o in remove_options:
                 where_option_is_found = counter[o-1]
                 where_option_is_found -= set([tile_index])
-
 
     def _clear_superfluous(self) -> bool:
         success = False
@@ -77,8 +76,6 @@ class Sudoku:
         
         return success
                 
-
-
     def _match_tiles(self, where: List[int], which: Tile) -> Set[int]:
         matches = set()
         for tile_index in where:
@@ -109,7 +106,6 @@ class Sudoku:
                         
         return success
 
-
     def _cross_reduction_rc_finder(self, kind: str, option: int):
         doubles = []
         for counter in self.counters[kind]:
@@ -117,7 +113,6 @@ class Sudoku:
                 doubles.append(tiles)
         
         return doubles
-
 
     def _cross_reduction(self, kind: str, option: int):
         alt_kind = ["r", "c"]
@@ -148,37 +143,27 @@ class Sudoku:
         else:
             return False
 
-    def _return_options(self) -> List[int]:
-        all =  [t.options for t in self.tiles]
-        return [all[9*r:9*(r+1)] for r in range(9)]
-
-    def _format(self, optionslist):
-        return "\n".join(["| ".join(f"{str(e):<{2*(self.max_options+1)+self.max_options-1}}" for e in row) for row in optionslist])
-    
-    def _return_specific_only(self, which: int):       
-        return [[opts if which in opts else None for opts in row] for row in self._return_options()]
-
-    def print_specific_only(self, n):
-        print(self._format_colorized(self._return_specific_only(n)))
-
-    def _format_colorized(self):
-        return "\n".join([" ".join(f"\033[{tile.pos['s']+30}m{str(tile.options):<{2*(self.max_options+1)+self.max_options-1}}\033[0m" for tile in row) for row in [self.tiles[r*9:9*(r+1)] for r in range(9)]])
-    
 
 
-    def __str__(self):
-        return self._format(self._return_options())
+    def _fewest_option(self):
+        appearances = [0]*9
+        for tile in self.tiles:
+            for o in tile.options:
+                appearances[o-1] += 1
+        
+        return appearances.index(min(appearances))+1
 
-    def solve(self, n) -> List[int]:
-        # self._clear_superfluous()
+    def _return_options(self) -> List[List[Tile]]:
+        return [self.tiles[9*r:9*(r+1)] for r in range(9)]
 
+
+    def solve(self, n):
         if self.max_options == 1:
-            return self._return_options()
+            return self
 
-        # elif n > self.max_options:
         elif self.emergency_count == 2:
             print("couldn't solve")
-            return self._return_options()
+            return self
 
         elif self.emergency_count == 1:
             self.emergency_count = 2
@@ -188,7 +173,7 @@ class Sudoku:
                         print("cross-reduction")
                         self.emergency_count = 0
 
-            self.solve(1)
+            return self.solve(1)
         
         elif n > self.max_options:
             self.emergency_count = 1
@@ -196,16 +181,7 @@ class Sudoku:
                 print("clean-up")
                 self.emergency_count = 0
 
-            self.solve(1)
-
-        # elif n > self.max_options:
-        #     self.emergency_count = 1
-        #     for o in range(1, 10):
-        #         for kind in ("r", "c"):
-        #             if self._cross_reduction(kind, o):
-        #                 self.emergency_count = 0
-                
-        #     return self.solve(1)
+            return self.solve(1)
 
         else:
             n_success = 0
@@ -223,14 +199,6 @@ class Sudoku:
             else:
                 return self.solve(n+1)
 
-    def _fewest_option(self):
-        appearances = [0]*9
-        for tile in self.tiles:
-            for o in tile.options:
-                appearances[o-1] += 1
-        
-        return appearances.index(min(appearances))+1
-
     def validate(self) -> bool:
         goal = set(range(1,10))
         for kind in self.kinds:
@@ -245,9 +213,30 @@ class Sudoku:
         return True
 
 
+    def _return_specific_only(self, which: int):    
+        return [[tile if which in tile.options else None for tile in row] for row in self._return_options()]
+
+    def print_specific_only(self, n):
+        # doesn't work and I don't know why
+        print(self._format(self._return_specific_only(n), True))
+
+    def _format(self, tile_rows: List[List[Tile]], colorize=False):
+        colors = [";".join([str(int(c*256)) for c in hsv_to_rgb(h/9, 1, 1)]) for h in range(9)]
+        width = 2*(self.max_options+1)+self.max_options-1
+        base_str = lambda tile: f"{str(tile.options):<{width}}"
+        if colorize:
+            color_str = lambda tile: f"\033[38;2;{colors[tile.pos['s']]}m{base_str(tile)}\033[0m"
+        else:
+            color_str = base_str
+
+        return "\n".join([" ".join(color_str(tile) for tile in row) for row in tile_rows])
+    
+    def __str__(self):
+        return self._format(self._return_options(), True)
+
 
   
-def solve(sudoku: Sudoku) -> List[int]:
+def solve(sudoku: Sudoku) -> Sudoku:
     return sudoku.solve(1)
 
 def load(path: Path) -> Sudoku:
@@ -257,12 +246,12 @@ def load(path: Path) -> Sudoku:
 
     return Sudoku(content)
 
-
+def save(sudoku: Sudoku, dest: Path):
+    pass
 
 if __name__=="__main__":
     s = load("evil.csv")
-    solve(s)
-    print(s, "\n")
-    print(s._format_colorized())
+    print(solve(s), "\n")
+    # s.print_specific_only(3)
     print(s.counters["c"][5])
     print(s.validate())
