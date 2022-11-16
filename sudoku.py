@@ -1,9 +1,14 @@
 from __future__ import annotations
+
+from colorsys import hsv_to_rgb
 from copy import deepcopy
+from csv import reader
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
-from csv import reader
-from colorsys import hsv_to_rgb
+from time import perf_counter
+import logging
+
+CONTAINER_TYPES = ("r", "c", "s")
 
 def index_to_pos(t):
     return {"r": (r:=t//9), "c": (c:=t%9), "s": 3*(r//3) + c//3}
@@ -37,25 +42,16 @@ class Tile:
         obj.n_options = 0
         return obj
 
-
 class Sudoku:
-    kinds = ("r", "c", "s")
-    emergency_count = 0
-    max_options = 0
-    _valid = True
-
     def __init__(self, content: Tuple[int]) -> None:
-        self._content = content
-        self._reload()
-    
-    def _reload(self):
-        content = self._content
+        self.violated = False
+
         self.tiles: List[Tile] = []
         self.containers: Dict[str, List[List[int]]] = {}
         self.counters: Dict[str, List[List[Set[int]]]] = {}
 
         occupied_tiles = []
-        for kind in self.kinds:
+        for kind in CONTAINER_TYPES:
             self.containers[kind] = [[] for _ in range(9)]
             self.counters[kind] = [[set() for _ in range(9)] for _ in range(9)]
 
@@ -66,14 +62,14 @@ class Sudoku:
                 occupied_tiles.append((tile_index, val))
 
             self.tiles.append(tile)
-            for kind in self.kinds:
+            for kind in CONTAINER_TYPES:
                 self.containers[kind][tile.pos[kind]].append(tile_index)
 
                 counter = self.counters[kind][tile.pos[kind]]
                 for o in tile.options:
                     counter[o-1].add(tile_index)
 
-        for kind in self.kinds:
+        for kind in CONTAINER_TYPES:
             for idx in range(9):
                 self._reduce_options(kind, idx, 1)
         
@@ -81,7 +77,7 @@ class Sudoku:
     def _update_counter(self, tile_index: int, remove_options: set):
         # print("update counter")
         tile = self.tiles[tile_index]
-        for kind in self.kinds:
+        for kind in CONTAINER_TYPES:
             counter = self.counters[kind][tile.pos[kind]]
             for o in remove_options:
                 where_option_is_found = counter[o-1]
@@ -103,13 +99,11 @@ class Sudoku:
                 return True
             else:
                 # print(f"removed all options at r{tile.pos['r']}, c{tile.pos['c']}")
-                self._valid = False
+                self.violated = True
                 return False
         else:
             return False
     
-    def undo(self):
-        pass
 
     def add_options(self, where: int, which: set) -> None:
         """
@@ -206,12 +200,12 @@ class Sudoku:
 
     @property
     def done(self) -> bool:
-        return True if self.max_options==1 and self._valid else False
+        return True if self.max_options==1 and not self.violated else False
 
-    def valid(self) -> bool:
-        if self._valid:
+    def is_valid(self) -> bool:
+        if not self.violated:
             goal = set(range(1,10))
-            for kind in self.kinds:
+            for kind in CONTAINER_TYPES:
                 for i in range(9):
                     container = self.containers[kind][i]
                     options = set()
@@ -248,74 +242,52 @@ class Sudoku:
     def __str__(self):
         return self._format(self._return_options(), True)
 
-
 def reduce_options(sudoku: Sudoku, n: int):
-    if sudoku.done:
-        return sudoku
-    elif not sudoku._valid:
-        return False
-    else:
-        for kind in sudoku.kinds:
-            for kind_index in range(9):
-                if sudoku._reduce_options(kind, kind_index, n):
-                    # print(f"reduced n = {n}")
-                    return reduce_options(sudoku, 1)
-        
-        if n < 3:
-            return reduce_options(sudoku, n+1)
+    if not sudoku.violated:
+        if sudoku.done:
+            return sudoku
         else:
-            return cross_reduction(sudoku, 2)
+            for kind in CONTAINER_TYPES:
+                for kind_index in range(9):
+                    if sudoku._reduce_options(kind, kind_index, n):
+                        logging.info(f"{n} numbers in {n} tiles reduction")
+                        return reduce_options(sudoku, 1)
+            if n < 3:
+                return reduce_options(sudoku, n+1)
+            else:
+                return cross_reduction(sudoku, 2)
+    else:
+        return False
     
 def cross_reduction(sudoku: Sudoku, scale: int):
     for direction in ("r", "c"):
         for option in range(1, 10):
             if sudoku._n_by_n_removal(scale, direction, option):
-                # print(f"cross reduced")
+                logging.info(f"{option} appears in {scale}x{scale} square")
                 return reduce_options(sudoku, 1)
     
     if scale < 3:
         return cross_reduction(sudoku, scale+1)
     else:
-        # print("couldn't solve nicely")
-        # print("before auto try:")
-        # print(sudoku)
         return auto_try(sudoku)
-        # return sudoku
         
-
 def auto_try(sudoku: Sudoku):
-    # print("auto try...")
-    
     for tile_index in range(81):
         tile = sudoku.tiles[tile_index]
         if tile.n_options == 2:
-            opts = list(deepcopy(tile.options))
+            logging.info(f"initiate bifurcation...")
+
+            opts = deepcopy(tile.options)
             
-            # print(f"saved tile: {save_tiles[tile_index].options}")
-            s2 = deepcopy(sudoku)
-            s2.remove_options(tile_index, {opts[0]})
-            if reduce_options(s2, 1):
-                # print("done")
-                return s2
+            backup = deepcopy(sudoku)
+            backup.remove_options(tile_index, {opts.pop()})
+            if not (out:=reduce_options(backup, 1)):
+                backup = deepcopy(sudoku)
+                backup.remove_options(tile_index, {opts.pop()})
+                out = reduce_options(backup, 1)
 
-            else:
-                
-                # sudoku._content[tile_index] = opts[0]
-                # sudoku._reload()
-                sudoku.remove_options(tile_index, {opts[1]})
-                # print(sudoku)
-                sudoku._valid = True
-                return reduce_options(sudoku, 1)    
-
-def try_options(sudoku: Sudoku, where: int, option: int) -> Sudoku:
-    tile = sudoku.tiles[where]
-    if option in tile.options:
-        sudoku.remove_options(where, tile.options-{option})
-        return reduce_options(sudoku, 1)
-
-    else:
-        # print("invalid try")
-        return sudoku
+            logging.info(f"exit bifurcation")
+            return out
 
 
 def solve(sudoku: Sudoku) -> Sudoku:
@@ -332,19 +304,9 @@ def save(sudoku: Sudoku, dest: Path):
     pass
 
 if __name__=="__main__":
-    s = load("evil.csv")
-    
-    print(solve(s), "\n")
-    # print(s.counters["r"][0])
-    # s.print_specific(6)
-    # print("\n")
-    # try_options(s, row_column_to_index(0, 1), 5)
-    # print(s)
-    # print(solve(s), "\n")
-    # try_options(s, row_column_to_index(2, 7), 6)
-    # s.print_specific(6)
-    # print("\n")
-    # print(s)
-    # print(s.counters["s"][8])
-    print(s.valid())
-    print(s.max_options)
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
+    s = load("evil3.csv")
+    t0 = perf_counter()
+    s = solve(s)
+    T = perf_counter()-t0
+    print(f"solved in {round(T,6)}s, yielding:\n{s}")
