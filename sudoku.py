@@ -166,24 +166,81 @@ def auto_try(fmtsol: _FormattedSolving, sudoku: Sudoku):
             return out
 
 
-def _print_grid(sudoku: Sudoku, markup_tiles: Tuple[int]):
+def _format_tile(options: set, considered: set, affected: set) -> str:
+    colorized = []
+    for opt in options:
+        if opt in considered:
+            colorized.append(f"\033[92m{opt}\033[0m")
+        elif opt in affected:
+            colorized.append(f"\033[91m{opt}\033[0m")
+        else:
+            colorized.append(str(opt))
+            
+    joined = ", ".join(colorized)
+    return f"[{joined}]"
+
+def _print_grid(sudoku: Sudoku, considered_tiles: Set[int], considered_options: Set[int], affected_tiles: Set[int], affected_options: Set[int]):
+    tiles = sudoku.tiles
+    tile_width = (sudoku.max_options*3-2)+2
+    square_width = (tile_width+1)*3-1
+    row_strs = ""
+    for row in range(9):
+        col_strs = ""
+        for col in range(9):
+            tile_index = 9*row+col
+            tile = tiles[tile_index]
+
+            in_tile_considered = set() if not tile_index in considered_tiles else tile.options&considered_options
+            in_tile_affected = set() if not tile_index in affected_tiles else tile.options&affected_options
+
+            col_strs += f"{_format_tile(tile.options, in_tile_considered, in_tile_affected):<{tile_width}} "
+            
+            if (c:=col+1)%3==0 and c < 9:
+                col_strs += "| "
+
+        row_strs += f"{col_strs}\n"
+
+        if (r:=row+1)%3==0 and r < 9:
+            row_strs += f"={'=|='.join(square_width*'=')}="
+
+def _print_no_output(sudoku: Sudoku, considered_tiles: Tuple[int], considered_options: Set[int], affected_tiles: Tuple[int], affected_options: Set[int]):
     pass
 
-def _print_no_output(sudoku: Sudoku, markup_tiles: Tuple[int]):
-    pass
-
-def _print_colorized(sudoku: Sudoku, markup_tiles: Tuple[int]):
-    pass
 
 _FORMATTERS = {
     "grid": _print_grid,
-    "color": _print_colorized,
     "empty": _print_no_output
 }
 
-class _FormattedSolving:
+
+class _Skipper:
     def __init__(self, formatting: str) -> None:
         self._fmt = _FORMATTERS[formatting]
+        
+    def __call__(self, *args):
+        pass
+
+class _Stepper(_Skipper):
+    def __call__(self, sudoku: Sudoku, considered_tiles: Set[int], considered_options: Set[int], affected_tiles: Set[int], affected_options: Set[int]):
+        self._fmt(sudoku, considered_tiles, considered_options, affected_tiles, affected_options)
+
+        answering = True
+        while answering:
+            if not input("next step: (press ENTER)"):
+                answering = False
+            else:
+                print("JUST HIT ENTER!")
+
+
+
+_STEPPERS = {
+    True: _Stepper,
+    False: _Skipper
+}
+
+class _FormattedSolving:
+    def __init__(self, formatting: str, stepping: False) -> None:
+        self._stepper: _Stepper = _STEPPERS[stepping](formatting)
 
     def load_content(self, S: Sudoku, content: List[int]):
         occupied_tiles = []
@@ -205,6 +262,7 @@ class _FormattedSolving:
             for idx in range(9):
                 self._reduce_options(S, kind, idx, 1)
         
+        return S
 
     def _update_counter(self, S: Sudoku, tile_index: int, remove_options: set):
         # print("update counter")
@@ -218,6 +276,9 @@ class _FormattedSolving:
                 if len(where_option_is_found) == 1:
                     where_only_one_left = list(where_option_is_found)[0]
                     remove_opts = deepcopy(S.tiles[where_only_one_left].options)-{o}
+
+                    self._stepper(S, {where_only_one_left}, {o}, {where_only_one_left}, remove_options)
+
                     self.remove_options(S, where_only_one_left, remove_opts )
 
     def remove_options(self, S: Sudoku, where: int, which: set) -> bool:
@@ -270,6 +331,9 @@ class _FormattedSolving:
         
         for tile_index in container:
             if len(matches:=self._get_equivalent_tiles(S, container, tile_index)) == n:
+
+                self._stepper(S, matches, S.tiles[tile_index].options, set(container)-matches, S.tiles[tile_index].options)
+
                 for unmatched in set(container)-matches:
                     if self.remove_options(S, unmatched, S.tiles[tile_index].options):
                         # print(f"remove option {self.tiles[tile_index].options} from {unmatched}")
@@ -305,6 +369,9 @@ class _FormattedSolving:
                 throw_away |= (secondary_kind_tiles - found_tiles)
             
             if len(throw_away) > 0:
+
+                self._stepper(S, found_tiles, {option}, throw_away, {option})
+
                 for tidx in throw_away:
                     self.remove_options(S, tidx, {option})
 
@@ -315,9 +382,16 @@ class _FormattedSolving:
 
 
 
-def solve(sudoku: Sudoku) -> Sudoku:
+def solve(path: Path, formatting: str, stepping: bool) -> Sudoku:
+    fmtsol = _FormattedSolving(formatting, stepping)
 
-    return reduce_options(sudoku, 1)
+    with open(path) as csvfile:
+        rows = reader(csvfile, skipinitialspace=True)
+        content = [(int(elt) if elt else 0) for row in rows for elt in row]
+
+    sudoku = fmtsol.load_content(Sudoku(), content)
+
+    return reduce_options(fmtsol, sudoku, 1)
 
 def load(path: Path) -> Sudoku:
     with open(path) as csvfile:
@@ -331,8 +405,10 @@ def save(sudoku: Sudoku, dest: Path):
 
 if __name__=="__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
-    s = load("evil3.csv")
-    t0 = perf_counter()
-    s = solve(s)
-    T = perf_counter()-t0
-    print(f"solved in {round(T,6)}s, yielding:\n{s}")
+    # s = load("evil3.csv")
+    s = solve("evil3.csv", "grid", True)
+    print(s)
+    # t0 = perf_counter()
+    # s = solve(s)
+    # T = perf_counter()-t0
+    # print(f"solved in {round(T,6)}s, yielding:\n{s}")
