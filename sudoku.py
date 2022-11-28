@@ -4,11 +4,21 @@ from colorsys import hsv_to_rgb
 from copy import deepcopy
 from csv import reader
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Set
 from time import perf_counter
 import logging
 
 CONTAINER_TYPES = ("r", "c", "s")
+
+# To Do
+# - reposition the 'solving launchers' into the solver class
+# - consider some minor coloring issues in the stepper
+# - rework stepping system; only invoke step if options are to be removed
+#   by using the considered and affected tiles as class variables of the 
+#   stepper classes [done]
+# - analyse curious behavior of the _update_counter functions (which is removing
+#   options that shouldn't be removed) [done]
+
 
 def index_to_pos(t):
     return {"r": (r:=t//9), "c": (c:=t%9), "s": 3*(r//3) + c//3}
@@ -118,29 +128,35 @@ class Sudoku:
     def __str__(self):
         return self._format(self._return_options(), True)
 
+
 def reduce_options(fmtsol: _FormattedSolving, sudoku: Sudoku, n: int):
-    if not sudoku.violated:
-        if sudoku.done:
-            return sudoku
-        else:
-            for kind in CONTAINER_TYPES:
-                for kind_index in range(9):
-                    if fmtsol._reduce_options(sudoku, kind, kind_index, n):
-                        logging.info(f"{n} numbers in {n} tiles reduction")
-                        return reduce_options(fmtsol,sudoku, 1)
-            if n < 3:
-                return reduce_options(fmtsol, sudoku, n+1)
-            else:
-                return cross_reduction(fmtsol, sudoku, 2)
+    if sudoku.done:
+        return sudoku
     else:
-        return False
+        for kind in CONTAINER_TYPES:
+            for kind_index in range(9):
+                if sudoku.violated:
+                    return False
+
+                if fmtsol._reduce_options(sudoku, kind, kind_index, n):
+                    logging.info(f"{n} numbers in {n} tiles reduction")
+                    return reduce_options(fmtsol, sudoku, 1)
+
+        if n < 3:
+            return reduce_options(fmtsol, sudoku, n+1)
+        else:
+            return cross_reduction(fmtsol, sudoku, 2)
     
 def cross_reduction(fmtsol: _FormattedSolving, sudoku: Sudoku, scale: int):
     for direction in ("r", "c"):
         for option in range(1, 10):
+            if sudoku.violated:
+                return False
+
             if fmtsol._n_by_n_removal(sudoku, scale, direction, option):
                 logging.info(f"{option} appears in {scale}x{scale} square")
                 return reduce_options(fmtsol, sudoku, 1)
+
     
     if scale < 3:
         return cross_reduction(fmtsol, sudoku, scale+1)
@@ -170,19 +186,19 @@ def _format_tile(options: set, considered: set, affected: set) -> str:
     colorized = []
     for opt in options:
         if opt in considered:
-            colorized.append(f"\033[92m{opt}\033[0m")
+            colorized.append(f"\033[92m{opt}\033[39m")
         elif opt in affected:
-            colorized.append(f"\033[91m{opt}\033[0m")
+            colorized.append(f"\033[91m{opt}\033[39m")
         else:
             colorized.append(str(opt))
             
-    joined = ", ".join(colorized)
+    joined = ",".join(colorized)
     return f"[{joined}]"
 
 def _print_grid(sudoku: Sudoku, considered_tiles: Set[int], considered_options: Set[int], affected_tiles: Set[int], affected_options: Set[int]):
     tiles = sudoku.tiles
-    tile_width = (sudoku.max_options*3-2)+2
-    square_width = (tile_width+1)*3-1
+    tile_width = sudoku.max_options*2+1
+    square_width = tile_width*3
     row_strs = ""
     for row in range(9):
         col_strs = ""
@@ -193,23 +209,25 @@ def _print_grid(sudoku: Sudoku, considered_tiles: Set[int], considered_options: 
             in_tile_considered = set() if not tile_index in considered_tiles else tile.options&considered_options
             in_tile_affected = set() if not tile_index in affected_tiles else tile.options&affected_options
 
-            col_strs += f"{_format_tile(tile.options, in_tile_considered, in_tile_affected):<{tile_width}} "
+            col_strs += f"{_format_tile(tile.options, in_tile_considered, in_tile_affected)}{(tile_width-tile.n_options*2-1)*' '}"
             
             if (c:=col+1)%3==0 and c < 9:
-                col_strs += "| "
+                col_strs += u"\033[1m \u2551 \033[0m"
 
         row_strs += f"{col_strs}\n"
 
-        if (r:=row+1)%3==0 and r < 9:
-            row_strs += f"={'=|='.join(square_width*'=')}="
+        line_char = u"\u2550"
+        cross_char = u"\u256c"
 
-def _print_no_output(sudoku: Sudoku, considered_tiles: Tuple[int], considered_options: Set[int], affected_tiles: Tuple[int], affected_options: Set[int]):
-    pass
+        if (r:=row+1)%3==0 and r < 9:
+            row_strs += f"\033[1m{(line_char+cross_char+line_char).join([square_width*line_char]*3)}\033[0m\n"
+    
+    print("\033[H\033[J", end="")
+    print(row_strs)
 
 
 _FORMATTERS = {
-    "grid": _print_grid,
-    "empty": _print_no_output
+    "grid": _print_grid
 }
 
 
@@ -217,12 +235,24 @@ class _Skipper:
     def __init__(self, formatting: str) -> None:
         self._fmt = _FORMATTERS[formatting]
         
-    def __call__(self, *args):
+    def show_step(self, *args):
         pass
 
 class _Stepper(_Skipper):
-    def __call__(self, sudoku: Sudoku, considered_tiles: Set[int], considered_options: Set[int], affected_tiles: Set[int], affected_options: Set[int]):
-        self._fmt(sudoku, considered_tiles, considered_options, affected_tiles, affected_options)
+    considered_tiles = set()
+    considered_options = set()
+    affected_tiles = set()
+    affected_options = set()
+    _counter = 0
+
+    def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
+        # if sudoku.violated:
+        self._counter += 1
+        # if self._counter >= 380 or list(affected_tiles)[0]==35:
+            # print(f"step {self._counter}:")
+            # print(f"counters around 35: \nrow: {sudoku.counters['r'][3]}\ncol: {sudoku.counters['c'][8]}\nsqu: {sudoku.counters['s'][5]}")
+        self._fmt(sudoku, self.considered_tiles, self.considered_options, affected_tiles, affected_options)
+        print(f"status: {'violated' if sudoku.violated else 'ok'}")
 
         answering = True
         while answering:
@@ -230,7 +260,6 @@ class _Stepper(_Skipper):
                 answering = False
             else:
                 print("JUST HIT ENTER!")
-
 
 
 _STEPPERS = {
@@ -264,36 +293,45 @@ class _FormattedSolving:
         
         return S
 
-    def _update_counter(self, S: Sudoku, tile_index: int, remove_options: set):
-        # print("update counter")
+    def _counter_update_chain(self, S: Sudoku, tile_index: int, remove_options: set):
         tile = S.tiles[tile_index]
         for kind in CONTAINER_TYPES:
             counter = S.counters[kind][tile.pos[kind]]
             for o in remove_options:
-                where_option_is_found = counter[o-1]
-                where_option_is_found -= {tile_index}
-
-                if len(where_option_is_found) == 1:
-                    where_only_one_left = list(where_option_is_found)[0]
+                if len(counter[o-1]) == 1:
+                    where_only_one_left = list(counter[o-1])[0]
                     remove_opts = deepcopy(S.tiles[where_only_one_left].options)-{o}
 
-                    self._stepper(S, {where_only_one_left}, {o}, {where_only_one_left}, remove_options)
+                    self._stepper.considered_tiles = {where_only_one_left}
+                    self._stepper.considered_options = {o}
 
-                    self.remove_options(S, where_only_one_left, remove_opts )
+                    if not self.remove_options(S, where_only_one_left, remove_opts):
+                        return False
+        return True
+
+    def _update_counter(self, S: Sudoku, tile_index: int, remove_options: set):
+        tile = S.tiles[tile_index]
+        for kind in CONTAINER_TYPES:
+            counter = S.counters[kind][tile.pos[kind]]
+            for o in remove_options:
+                counter[o-1] -= {tile_index}
+                if len(counter[o-1]) == 0:
+                    S.violated = True
+                    return False
+
+        return self._counter_update_chain(S, tile_index, remove_options)
+        
 
     def remove_options(self, S: Sudoku, where: int, which: set) -> bool:
         tile = S.tiles[where]
-        # print(f"remove options {which} from tileopts {tile.options}")
         if (diff:=tile.options & which):
-            # print(f"from tile r{tile.pos['r']}, c{tile.pos['c']} with opts {tile.options} remove {which}")
+            
+            self._stepper.show_step(S, {where}, which)
+
             tile.options -= which
             if tile.n_options > 0:
-                self._update_counter(S, where, diff)
-                return True
-            else:
-                # print(f"removed all options at r{tile.pos['r']}, c{tile.pos['c']}")
-                S.violated = True
-                return False
+                return self._update_counter(S, where, diff)
+                
         else:
             return False
     
@@ -331,13 +369,16 @@ class _FormattedSolving:
         
         for tile_index in container:
             if len(matches:=self._get_equivalent_tiles(S, container, tile_index)) == n:
-
-                self._stepper(S, matches, S.tiles[tile_index].options, set(container)-matches, S.tiles[tile_index].options)
+                
+                self._stepper.considered_tiles = matches
+                self._stepper.considered_options = S.tiles[tile_index].options
 
                 for unmatched in set(container)-matches:
                     if self.remove_options(S, unmatched, S.tiles[tile_index].options):
-                        # print(f"remove option {self.tiles[tile_index].options} from {unmatched}")
                         success = True
+                        print(f"std n={n} removal")
+                    if S.violated:
+                        return False
 
         return success
 
@@ -369,11 +410,17 @@ class _FormattedSolving:
                 throw_away |= (secondary_kind_tiles - found_tiles)
             
             if len(throw_away) > 0:
+                
+                self._stepper.considered_tiles = found_tiles
+                self._stepper.considered_options = {option}
 
-                self._stepper(S, found_tiles, {option}, throw_away, {option})
+                # self._stepper(S, found_tiles, {option}, throw_away, {option})
 
                 for tidx in throw_away:
                     self.remove_options(S, tidx, {option})
+                    logging.info(f"{n}x{n} removal at {tidx}")
+                    if S.violated:
+                        return False
 
                 return True
 
@@ -406,7 +453,7 @@ def save(sudoku: Sudoku, dest: Path):
 if __name__=="__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
     # s = load("evil3.csv")
-    s = solve("evil3.csv", "grid", True)
+    s = solve("examples/evil3.csv", "grid", True)
     print(s)
     # t0 = perf_counter()
     # s = solve(s)
