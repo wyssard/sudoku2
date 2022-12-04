@@ -51,7 +51,7 @@ _FORMATTERS = {
 }
 
 
-class _Skipper:
+class Skipper:
     def __init__(self, formatting: str) -> None:
         self._fmt = _FORMATTERS[formatting]
         
@@ -61,7 +61,7 @@ class _Skipper:
     def show(self, sudoku: Sudoku):
         self._fmt(sudoku, set(), set(), set(), set())
 
-class _Stepper(_Skipper):
+class Stepper(Skipper):
     considered_tiles = set()
     considered_options = set()
     affected_tiles = set()
@@ -91,6 +91,6 @@ class _Stepper(_Skipper):
 
 
 STEPPERS = {
-    True: _Stepper,
-    False: _Skipper
+    True: Stepper,
+    False: Skipper
 }
