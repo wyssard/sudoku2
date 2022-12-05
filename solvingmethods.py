@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from sudoku import Sudoku, CONTAINER_TYPES
-from _formatting import Stepper
+from structure import Sudoku, CONTAINER_TYPES
+from stepping import StepperBase
+from formatting import CONTAINER_NAMES
 
 from abc import abstractmethod
 from typing import Set
 from copy import deepcopy
-import logging
 
 
 class FmtSolvingBase:
-    def __init__(self, stepper: Stepper) -> None:
+    def __init__(self, stepper: StepperBase) -> None:
         self._stepper = stepper
 
     @abstractmethod
@@ -25,11 +25,11 @@ class _SolvingFail(FmtSolvingBase):
         return False
 
 class FmtSolvingMethod(FmtSolvingBase):
-    def __init__(self, stepper: Stepper, remove: RemoveAndUpdate, fall_back: FmtSolvingMethod|None = None, advance: FmtSolvingMethod|None = None) -> None:
+    def __init__(self, stepper: StepperBase, remove: RemoveAndUpdate) -> None:
         super().__init__(stepper)
         self._remove = remove
-        self._advance = advance if advance else self
-        self._fall_back = fall_back if fall_back else _SolvingFail()
+        self._advance = self
+        self._fall_back = _SolvingFail()
 
     def set_fall_back(self, fall_back: FmtSolvingMethod):
         self._fall_back = fall_back
@@ -60,11 +60,8 @@ class RemoveAndUpdate(FmtSolvingBase):
                     self._stepper.set_consideration(
                         {where_only_one_left},
                         {o},
-                        f"tile {where_only_one_left} is the only tile in {kind}{tile.pos[kind]} with {o} as option")
-                    # self._stepper.solving_message = f"tile {where_only_one_left} is the only tile in {kind}{tile.pos[kind]} with {o} as option"
-                    # self._stepper.considered_tiles = {where_only_one_left}
-                    # self._stepper.considered_options = {o}
-
+                        f"tile {where_only_one_left} is the only tile in {CONTAINER_NAMES[kind]} {tile.pos[kind]+1} with {o} as option")
+                    
                     if not self.launch(S, where_only_one_left, remove_opts):
                         return False
         return True
@@ -100,6 +97,13 @@ class NTilesNOptions(FmtParamSolvingMethod):
     N_INIT = 1
     _n = N_INIT
 
+    def _get_solving_message(self, n: int, kind: str, c_index: int, matches: set, shared_options: set):
+        c_name = CONTAINER_NAMES[kind]
+        if n==1:
+            return f"tile {matches} in {c_name} {c_index} has fixed value {shared_options}; this option is thus removed from the remaining tiles in {c_name} {c_index}"
+        else:
+            return f"tiles {matches} in {c_name} {c_index} share options {shared_options}; removing these options from the remaining tiles in {c_name} {c_index}"
+
     def _get_equivalent_tiles(self, S: Sudoku, where: Set[int], tile_index: int) -> Set[int]:
         """
         return indices of all tiles within `where` that have the same options 
@@ -108,7 +112,6 @@ class NTilesNOptions(FmtParamSolvingMethod):
         """
         
         if (tile:=S.tiles[tile_index]).n_options == 1:
-            # print(f"tile {tile_index} has only one option")
             return {tile_index}
 
         else:
@@ -116,7 +119,6 @@ class NTilesNOptions(FmtParamSolvingMethod):
             for tile_index in where:
                 if S.tiles[tile_index].options == tile.options:
                     matches.add(tile_index)
-            # print(f"found {len(matches)} equiv tile anyways")
             return matches if len(matches)==tile.n_options else set()
 
     def _n_times_n_options_removal_container(self, S: Sudoku, kind: str, container_index: int, n: int) -> bool:
@@ -128,19 +130,15 @@ class NTilesNOptions(FmtParamSolvingMethod):
                 
                 shared_options = S.tiles[tile_index].options
 
-                # self._stepper.solving_message = f"tiles {matches} in {kind}{container_index} share options {shared_options}; removing these options from the remaining tiles in {kind}{container_index}"
-                # self._stepper.considered_tiles = matches
-                # self._stepper.considered_options = shared_options
-
                 for unmatched in set(container)-matches:
                     self._stepper.set_consideration(
                         matches,
                         shared_options,
-                        f"tiles {matches} in {kind}{container_index} share options {shared_options}; removing these options from the remaining tiles in {kind}{container_index}")
+                        self._get_solving_message(n, kind, container_index, matches, shared_options))
                         
                     if self._remove.launch(S, unmatched, shared_options):
                         success = True
-                        # logging.info(f"std n={n} removal")
+
                     if S.violated:
                         return False
 
@@ -191,7 +189,7 @@ class XWing(FmtParamSolvingMethod):
         secondary_kind, = {"r", "c"}-{primary_kind}
         if (primary_kind_tiles:=self._find_option_in_n_by_n(S, n, primary_kind, option)):
             found_tiles = {idx for idxs in primary_kind_tiles for idx in idxs}
-            # print(f"trying {n} x {n} removal with option {option} considering {found_tiles}")
+   
             for tidx in primary_kind_tiles[0]:
                 tile = S.tiles[tidx]
                 secondary_kind_counter = S.counters[secondary_kind][tile.pos[secondary_kind]]
@@ -199,13 +197,6 @@ class XWing(FmtParamSolvingMethod):
                 throw_away |= (secondary_kind_tiles - found_tiles)
             
             if len(throw_away) > 0:
-                
-                # self._stepper.solving_message = f"found option {option} in {n}x{n} square at {found_tiles}, thus removing {option} from {tidx}"
-                # self._stepper.considered_tiles = found_tiles
-                # self._stepper.considered_options = {option}
-
-                # self._stepper(S, found_tiles, {option}, throw_away, {option})
-
                 for tidx in throw_away:
                     self._stepper.set_consideration(
                         found_tiles,
@@ -213,7 +204,6 @@ class XWing(FmtParamSolvingMethod):
                         f"found option {option} in {n}x{n} square at {found_tiles}, thus removing {option} from {tidx}")
 
                     self._remove.launch(S, tidx, {option})
-                    # logging.info(f"{n}x{n} removal at {tidx}")
                     if S.violated:
                         return False
 
@@ -257,18 +247,20 @@ class Bifurcation(FmtSolvingMethod):
                     {tile_index},
                     tile.options,
                     f"bifurcation at {tile_index}; try removing option {try_option}")
-
-                # self._stepper.solving_message = f"bifurcation at {tile_index}; try removing option {try_option}"
-                # self._stepper.considered_tiles = {tile_index}
-                # self._stepper.considered_options = tile.options
                 
                 self._remove.launch(backup, tile_index, {try_option})
                 if not (out:=self._advance.launch(backup)):
+                    alt_option = opts.pop()
+
+                    self._stepper.set_consideration(
+                        {tile_index},
+                        tile.options,
+                        f"bifurcation at {tile_index} failed when removing {try_option}, go with {alt_option} instead")
+
                     backup = deepcopy(S)
-                    self._remove.launch(backup, tile_index, {opts.pop()})
+                    self._remove.launch(backup, tile_index, {alt_option})
                     out = self._advance.launch(backup)
 
-                # logging.info(f"exit bifurcation")
                 return out
     
         return self._fall_back.launch(S)

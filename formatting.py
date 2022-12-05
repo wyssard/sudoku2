@@ -1,7 +1,14 @@
 from __future__ import annotations
 
 from typing import Set
-from sudoku import Sudoku
+
+from structure import Sudoku
+
+CONTAINER_NAMES = {
+    "r": "row",
+    "c": "column",
+    "s": "square"
+}
 
 def _format_tile(options: set, considered: set, affected: set) -> str:
     colorized = []
@@ -19,7 +26,7 @@ def _format_tile(options: set, considered: set, affected: set) -> str:
 def _get_row_delimiter(left, center, right, width, main):
     return f"{left}{main}{(main+center+main).join([(width)*main]*3)}{main}{right}\n"
 
-def _print_grid(sudoku: Sudoku, considered_tiles: Set[int], considered_options: Set[int], affected_tiles: Set[int], affected_options: Set[int]):
+def print_grid(sudoku: Sudoku, considered_tiles: Set[int], considered_options: Set[int], affected_tiles: Set[int], affected_options: Set[int]):
     tiles = sudoku.tiles
     tile_width = sudoku.max_options*2+1
     square_width = tile_width*3
@@ -51,69 +58,12 @@ def _print_grid(sudoku: Sudoku, considered_tiles: Set[int], considered_options: 
             col_strs += f"{_format_tile(tile.options, in_tile_considered, in_tile_affected)}{(tile_width-tile.n_options*2-1)*' '}"
             
             if (c:=col+1)%3==0 and c < 9:
-                col_strs += f"\033[0m {v_line_char} \033[0m"
+                col_strs += f" {v_line_char} "
 
         row_strs += f"{col_strs} {v_line_char}\n"
 
-        
-
         if (r:=row+1)%3==0 and r < 9:
             row_strs += _get_row_delimiter(l_t, cross_char, r_t, square_width, h_line_char)
-            # row_strs += f"\033[0m{l_t}{h_line_char}{(h_line_char+cross_char+h_line_char).join([(square_width)*h_line_char]*3)}{h_line_char}{r_t}\033[0m\n"
 
     row_strs += _get_row_delimiter(ll_angle, d_t, rl_angle, square_width, h_line_char)
-
     print(row_strs)
-
-_FORMATTERS = {
-    "grid": _print_grid
-}
-
-
-class Skipper:
-    def __init__(self, formatting: str) -> None:
-        self._fmt = _FORMATTERS[formatting]
-    
-    def set_consideration(self, *args):
-        pass
-
-    def show_step(self, *args):
-        pass
-
-    def show(self, sudoku: Sudoku):
-        self._fmt(sudoku, set(), set(), set(), set())
-
-class Stepper(Skipper):
-    considered_tiles = set()
-    considered_options = set()
-    affected_tiles = set()
-    affected_options = set()
-    _counter = 0
-    solving_message: str
-
-    def set_consideration(self, tiles: set, options: set, message: Stepper):
-       self.considered_tiles = tiles
-       self.considered_options = options
-       self.solving_message = message
-
-    def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
-        
-        self._counter += 1
-        
-        print("\033[H\033[J", end="")
-        print(f"solving step {self._counter}: {self.solving_message}")
-        self._fmt(sudoku, self.considered_tiles, self.considered_options, affected_tiles, affected_options)
-        print(f"status: {'violated' if sudoku.violated else 'ok'}")
-
-        answering = True
-        while answering:
-            if not input("next step: (press ENTER)"):
-                answering = False
-            else:
-                print("JUST HIT ENTER!")
-    
-
-STEPPERS = {
-    True: Stepper,
-    False: Skipper
-}
