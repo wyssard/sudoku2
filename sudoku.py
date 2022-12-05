@@ -47,7 +47,7 @@ class Tile:
         return obj
 
 class Sudoku:
-    def __init__(self) -> None:
+    def __init__(self, content: List[int]) -> None:
         self.violated = False
 
         self.tiles: List[Tile] = []
@@ -55,12 +55,56 @@ class Sudoku:
         self.counters: Dict[str, List[List[Set[int]]]] = {}
 
         for kind in CONTAINER_TYPES:
-            self.containers[kind] = [[] for _ in range(9)]
             self.counters[kind] = [[set() for _ in range(9)] for _ in range(9)]
+            self.containers[kind] = [[] for _ in range(9)]
 
+        given_tiles = []
         for tile_index in range(81):
-            self.tiles.append(Tile(**index_to_pos(tile_index)))
+            tile = Tile(**index_to_pos(tile_index))
+            if val:=content[tile_index]:
+                tile.options = {val}
+                given_tiles.append(tile_index)
 
+            for kind in CONTAINER_TYPES:
+                self.containers[kind][tile.pos[kind]].append(tile_index)
+
+                counter = self.counters[kind][tile.pos[kind]]
+                for o in tile.options:
+                    counter[o-1].add(tile_index)
+                
+            self.tiles.append(tile)
+
+        for tile_index in given_tiles:
+            tile = self.tiles[tile_index]
+
+            # option 'o' has counter position 'o-1'
+            option_counter_pos = list(tile.options)[0]-1
+
+            for kind in CONTAINER_TYPES:
+                counter = self.counters[kind][tile.pos[kind]]
+                counter[option_counter_pos] = {tile_index}
+
+    # def load_content(self, S: Sudoku, content: List[int]):
+    #     occupied_tiles = []
+    #     for tile_index in range(81):
+    #         tile = S.tiles[tile_index]
+    #         if val:=content[tile_index]:
+    #             tile.options = {val}
+    #             occupied_tiles.append((tile_index, val))
+
+    #         # S.tiles.append(tile)
+    #         for kind in CONTAINER_TYPES:
+    #             S.containers[kind][tile.pos[kind]].append(tile_index)
+
+    #             counter = S.counters[kind][tile.pos[kind]]
+    #             for o in tile.options:
+    #                 counter[o-1].add(tile_index)
+
+    #     for kind in CONTAINER_TYPES:
+    #         for idx in range(9):
+    #             self._n_times_n_options_removal_container(S, kind, idx, 1)
+        
+    #     return S
 
     @property
     def max_options(self) -> int:

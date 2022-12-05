@@ -1,26 +1,43 @@
 from __future__ import annotations
 
 from sudoku import Sudoku, CONTAINER_TYPES
-from _formatting import STEPPERS, Stepper
+from _formatting import Stepper
 
-from typing import Set, List, Callable
+from abc import abstractmethod
+from typing import Set
 from copy import deepcopy
 import logging
 
 
 class FmtSolvingBase:
-    def __init__(self, formatting: str, stepping: bool) -> None:
-        self._stepper: Stepper = STEPPERS[stepping](formatting)
+    def __init__(self, stepper: Stepper) -> None:
+        self._stepper = stepper
 
+    @abstractmethod
     def launch(self, S: Sudoku, *args):
         pass
 
+class _SolvingFail(FmtSolvingBase):
+    def __init__(self):
+        pass
+
+    def launch(self, S: Sudoku):
+        return False
+
 class FmtSolvingMethod(FmtSolvingBase):
-    def __init__(self, formatting: str, stepping: bool, fall_back: FmtSolvingMethod, advance: FmtSolvingMethod|None) -> None:
-        super().__init__(formatting, stepping)
+    def __init__(self, stepper: Stepper, remove: RemoveAndUpdate, fall_back: FmtSolvingMethod|None = None, advance: FmtSolvingMethod|None = None) -> None:
+        super().__init__(stepper)
+        self._remove = remove
         self._advance = advance if advance else self
+        self._fall_back = fall_back if fall_back else _SolvingFail()
+
+    def set_fall_back(self, fall_back: FmtSolvingMethod):
         self._fall_back = fall_back
 
+    def set_advance(self, advance: FmtSolvingMethod):
+        self._advance = advance
+
+    @abstractmethod
     def launch(self, S: Sudoku):
         pass
 
@@ -28,6 +45,7 @@ class FmtParamSolvingMethod(FmtSolvingMethod):
     N_THRESHOLD: int
     N_INIT: int
     _n: int
+
 
 class RemoveAndUpdate(FmtSolvingBase):
     def _counter_update_chain(self, S: Sudoku, tile_index: int, remove_options: set):
@@ -39,8 +57,13 @@ class RemoveAndUpdate(FmtSolvingBase):
                     where_only_one_left = list(counter[o-1])[0]
                     remove_opts = deepcopy(S.tiles[where_only_one_left].options)-{o}
 
-                    self._stepper.considered_tiles = {where_only_one_left}
-                    self._stepper.considered_options = {o}
+                    self._stepper.set_consideration(
+                        {where_only_one_left},
+                        {o},
+                        f"tile {where_only_one_left} is the only tile in {kind}{tile.pos[kind]} with {o} as option")
+                    # self._stepper.solving_message = f"tile {where_only_one_left} is the only tile in {kind}{tile.pos[kind]} with {o} as option"
+                    # self._stepper.considered_tiles = {where_only_one_left}
+                    # self._stepper.considered_options = {o}
 
                     if not self.launch(S, where_only_one_left, remove_opts):
                         return False
@@ -103,13 +126,21 @@ class NTilesNOptions(FmtParamSolvingMethod):
         for tile_index in container:
             if len(matches:=self._get_equivalent_tiles(S, container, tile_index)) == n:
                 
-                self._stepper.considered_tiles = matches
-                self._stepper.considered_options = S.tiles[tile_index].options
+                shared_options = S.tiles[tile_index].options
+
+                # self._stepper.solving_message = f"tiles {matches} in {kind}{container_index} share options {shared_options}; removing these options from the remaining tiles in {kind}{container_index}"
+                # self._stepper.considered_tiles = matches
+                # self._stepper.considered_options = shared_options
 
                 for unmatched in set(container)-matches:
-                    if self.remove_options(S, unmatched, S.tiles[tile_index].options):
+                    self._stepper.set_consideration(
+                        matches,
+                        shared_options,
+                        f"tiles {matches} in {kind}{container_index} share options {shared_options}; removing these options from the remaining tiles in {kind}{container_index}")
+                        
+                    if self._remove.launch(S, unmatched, shared_options):
                         success = True
-                        print(f"std n={n} removal")
+                        # logging.info(f"std n={n} removal")
                     if S.violated:
                         return False
 
@@ -126,7 +157,6 @@ class NTilesNOptions(FmtParamSolvingMethod):
                         return False
 
                     if self._n_times_n_options_removal_container(S, kind, kind_index, self._n):
-                        # logging.info(f"{n} numbers in {n} tiles reduction")
                         self._n = self.N_INIT
                         return self._advance.launch(S)
 
@@ -137,8 +167,7 @@ class NTilesNOptions(FmtParamSolvingMethod):
                 self._n = self.N_INIT
                 return self._fall_back.launch(S)    
 
-
-class XWing(FmtSolvingMethod):
+class XWing(FmtParamSolvingMethod):
     N_THRESHOLD = 3
     N_INIT = 2
     _n = N_INIT
@@ -171,14 +200,20 @@ class XWing(FmtSolvingMethod):
             
             if len(throw_away) > 0:
                 
-                self._stepper.considered_tiles = found_tiles
-                self._stepper.considered_options = {option}
+                # self._stepper.solving_message = f"found option {option} in {n}x{n} square at {found_tiles}, thus removing {option} from {tidx}"
+                # self._stepper.considered_tiles = found_tiles
+                # self._stepper.considered_options = {option}
 
                 # self._stepper(S, found_tiles, {option}, throw_away, {option})
 
                 for tidx in throw_away:
-                    self.remove_options(S, tidx, {option})
-                    logging.info(f"{n}x{n} removal at {tidx}")
+                    self._stepper.set_consideration(
+                        found_tiles,
+                        {option},
+                        f"found option {option} in {n}x{n} square at {found_tiles}, thus removing {option} from {tidx}")
+
+                    self._remove.launch(S, tidx, {option})
+                    # logging.info(f"{n}x{n} removal at {tidx}")
                     if S.violated:
                         return False
 
@@ -216,43 +251,25 @@ class Bifurcation(FmtSolvingMethod):
                 
                 backup = deepcopy(S)
                 try_option = opts.pop()
+
+
+                self._stepper.set_consideration(
+                    {tile_index},
+                    tile.options,
+                    f"bifurcation at {tile_index}; try removing option {try_option}")
+
+                # self._stepper.solving_message = f"bifurcation at {tile_index}; try removing option {try_option}"
+                # self._stepper.considered_tiles = {tile_index}
+                # self._stepper.considered_options = tile.options
                 
-                self.remove_options(backup, tile_index, {try_option})
-                if not (out:=self.n_times_n_options_removal(backup, 1)):
+                self._remove.launch(backup, tile_index, {try_option})
+                if not (out:=self._advance.launch(backup)):
                     backup = deepcopy(S)
-                    self.remove_options(backup, tile_index, {opts.pop()})
-                    out = self.n_times_n_options_removal(backup, 1)
+                    self._remove.launch(backup, tile_index, {opts.pop()})
+                    out = self._advance.launch(backup)
 
                 # logging.info(f"exit bifurcation")
                 return out
-
-
-class _FormattedSolving:
-    def __init__(self, formatting: str, stepping: False) -> None:
-        self._stepper: Stepper = STEPPERS[stepping](formatting)
-
-    def load_content(self, S: Sudoku, content: List[int]):
-        occupied_tiles = []
-        for tile_index in range(81):
-            tile = S.tiles[tile_index]
-            if val:=content[tile_index]:
-                tile.options = {val}
-                occupied_tiles.append((tile_index, val))
-
-            S.tiles.append(tile)
-            for kind in CONTAINER_TYPES:
-                S.containers[kind][tile.pos[kind]].append(tile_index)
-
-                counter = S.counters[kind][tile.pos[kind]]
-                for o in tile.options:
-                    counter[o-1].add(tile_index)
-
-        for kind in CONTAINER_TYPES:
-            for idx in range(9):
-                self._n_times_n_options_removal_container(S, kind, idx, 1)
-        
-        return S
-
-
     
+        return self._fall_back.launch(S)
 
