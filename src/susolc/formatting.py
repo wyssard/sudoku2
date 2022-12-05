@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Set
 
-from structure import Sudoku
+from .structure import Sudoku
 
 CONTAINER_NAMES = {
     "r": "row",

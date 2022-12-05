@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from structure import Sudoku
-from formatting import print_grid
-from stepping import StepperBase, Skipper, AnyStep, InterestingStep
-from solvingmethods import FmtSolvingMethod, RemoveAndUpdate, NTilesNOptions, XWing, Bifurcation
+from .structure import Sudoku
+from .formatting import print_grid
+from .stepping import StepperBase, Skipper, AnyStep, InterestingStep
+from .solvingmethods import FmtSolvingMethod, RemoveAndUpdate, NTilesNOptions, XWing, Bifurcation
 
 from csv import reader
 from pathlib import Path
@@ -33,6 +33,7 @@ def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase)
     init_methods[-1].set_advance(init_methods[0])
 
     for i in range(1, len(method_order)-1):
+        method = init_methods[i]
         method.set_advance(init_methods[0])
         method.set_fall_back(init_methods[i+1])
     

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from structure import Sudoku, CONTAINER_TYPES
-from stepping import StepperBase
-from formatting import CONTAINER_NAMES
+from .structure import Sudoku, CONTAINER_TYPES
+from .stepping import StepperBase
+from .formatting import CONTAINER_NAMES
 
 from abc import abstractmethod
 from typing import Set
@@ -201,7 +201,8 @@ class XWing(FmtParamSolvingMethod):
                     self._stepper.set_consideration(
                         found_tiles,
                         {option},
-                        f"found option {option} in {n}x{n} square at {found_tiles}, thus removing {option} from {tidx}")
+                        f"found option {option} in {n}x{n} square at {found_tiles}, thus removing {option} from {tidx}",
+                        True)
 
                     self._remove.launch(S, tidx, {option})
                     if S.violated:
@@ -241,21 +242,23 @@ class Bifurcation(FmtSolvingMethod):
                 
                 backup = deepcopy(S)
                 try_option = opts.pop()
-
+                alt_option = opts.pop()
 
                 self._stepper.set_consideration(
                     {tile_index},
-                    tile.options,
-                    f"bifurcation at {tile_index}; try removing option {try_option}")
+                    {alt_option},
+                    f"bifurcation at {tile_index}; try {alt_option}",
+                    True)
                 
                 self._remove.launch(backup, tile_index, {try_option})
                 if not (out:=self._advance.launch(backup)):
-                    alt_option = opts.pop()
+                    
 
                     self._stepper.set_consideration(
                         {tile_index},
-                        tile.options,
-                        f"bifurcation at {tile_index} failed when removing {try_option}, go with {alt_option} instead")
+                        {try_option},
+                        f"bifurcation at {tile_index} with {alt_option} failed, go with {try_option} instead",
+                        True)
 
                     backup = deepcopy(S)
                     self._remove.launch(backup, tile_index, {alt_option})

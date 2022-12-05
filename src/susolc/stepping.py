@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Callable
 from abc import abstractmethod
 
-from structure import Sudoku
+from .structure import Sudoku
 
 
 class StepperBase:
@@ -11,7 +11,7 @@ class StepperBase:
         self._fmt = formatting
     
     @abstractmethod
-    def set_consideration(self, *args):
+    def set_consideration(self, tiles: set, options: set, message: str, interesting: bool = False):
         pass
 
     @abstractmethod
@@ -28,14 +28,13 @@ class AnyStep(StepperBase):
     _counter = 0
     solving_message: str
 
-    def set_consideration(self, tiles: set, options: set, message: str):
+    def set_consideration(self, tiles: set, options: set, message: str, interesting: bool = False):
        self.considered_tiles = tiles
        self.considered_options = options
        self.solving_message = message
+       self.interesting = interesting
 
-    def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
-        self._counter += 1
-        
+    def _step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
         print("\033[H\033[J", end="")
         self._fmt(sudoku, self.considered_tiles, self.considered_options, affected_tiles, affected_options)
         print(f"solving step {self._counter}: {self.solving_message}")
@@ -47,8 +46,14 @@ class AnyStep(StepperBase):
                 answering = False
             else:
                 print("JUST HIT ENTER!")
+
+    def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
+        self._counter += 1
+        self._step(sudoku, affected_tiles, affected_options)
+        
     
 class InterestingStep(AnyStep):
     def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
-        
-        return super().show_step(sudoku, affected_tiles, affected_options)
+        self._counter += 1
+        if self.interesting:
+            super()._step(sudoku, affected_tiles, affected_options)
