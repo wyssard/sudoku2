@@ -6,7 +6,7 @@ from susolc.solvingmethods import NTilesNOptions, XWing, YWing, Bifurcation
 from time import perf_counter
 
 def solve(s: Sudoku) -> Sudoku:
-    stepper = InterestingStep(print_grid)
+    stepper = Skipper(print_grid)
     solver = generate_solver([NTilesNOptions, XWing, YWing, Bifurcation], stepper)
     t0 = perf_counter()
     s = solver.launch(s)
@@ -16,4 +16,4 @@ def solve(s: Sudoku) -> Sudoku:
     return s
 
 if __name__=="__main__":
-    s = solve(load("examples/evil2.csv"))
+    s = solve(load("examples/evil5.csv"))
