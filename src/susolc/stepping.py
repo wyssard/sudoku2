@@ -35,7 +35,6 @@ class AnyStep(StepperBase):
        self.interesting = interesting
 
     def _step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
-        print("\033[H\033[J", end="")
         self._fmt(sudoku, self.considered_tiles, self.considered_options, affected_tiles, affected_options)
         print(f"solving step {self._counter}: {self.solving_message}")
         print(f"status: {'violated' if sudoku.violated else 'ok'}")
@@ -50,9 +49,19 @@ class AnyStep(StepperBase):
     def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
         self._counter += 1
         self._step(sudoku, affected_tiles, affected_options)
-        
-    
+
 class InterestingStep(AnyStep):
+    def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
+        self._counter += 1
+        if self.interesting:
+            super()._step(sudoku, affected_tiles, affected_options)
+
+class AnyStepFlush(AnyStep):
+    def _step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
+        print("\033[H\033[J", end="")
+        super()._step(sudoku, affected_tiles, affected_options)
+        
+class InterestingStepFlush(AnyStepFlush):
     def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
         self._counter += 1
         if self.interesting:

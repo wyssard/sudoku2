@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from .structure import Sudoku, CONTAINER_TYPES
+from .structure import Sudoku, Tile, CONTAINER_TYPES
 from .stepping import StepperBase
 from .formatting import CONTAINER_NAMES
 
 from abc import abstractmethod
-from typing import Set
+from typing import Set, List, Tuple
 from copy import deepcopy
 
 
@@ -134,7 +134,8 @@ class NTilesNOptions(FmtParamSolvingMethod):
                     self._stepper.set_consideration(
                         matches,
                         shared_options,
-                        self._get_solving_message(n, kind, container_index, matches, shared_options))
+                        self._get_solving_message(n, kind, container_index, matches, shared_options),
+                        n>1)
                         
                     if self._remove.launch(S, unmatched, shared_options):
                         success = True
@@ -146,7 +147,7 @@ class NTilesNOptions(FmtParamSolvingMethod):
 
     def launch(self, S: Sudoku):
         if S.done:
-            self._stepper.show(S)
+            # self._stepper.show(S)
             return S
         else:
             for kind in CONTAINER_TYPES:
@@ -230,6 +231,82 @@ class XWing(FmtParamSolvingMethod):
         else:
             self._n = self.N_INIT
             return self._fall_back.launch(S)
+
+class YWing(FmtSolvingMethod):
+    def _get_node_candidates(self, S: Sudoku, anchor: Tile):
+        candidates = set()
+        for kind in CONTAINER_TYPES:
+            for tidx in S.containers[kind][anchor.pos[kind]]:
+                tile = S.tiles[tidx]
+                if (tile.n_options==2) and (len(tile.options&anchor.options) == 1):
+                    candidates.add(tidx)
+
+        candidates = list(candidates)
+        # print(f"found canditates with options: {[c.options for c in candidates]} anchor has {anchor.options}")
+        return candidates
+    
+    def _eliminate_candidates(self, S: Sudoku, anchor: Tile, candidates: List[int]) -> List[Tuple[int, int]]:
+        n_candidates = len(candidates)
+        if n_candidates < 2:
+            return []
+
+        valid_pairs = []
+
+        for lcn in range(n_candidates-1):
+            left = S.tiles[candidates[lcn]]
+            for rcn in range(lcn+1, n_candidates):
+                right = S.tiles[candidates[rcn]]
+                
+                if (anchor.options.issubset(right.options|left.options)) and (len(right.options&left.options) == 1):
+                    valid_pairs.append((candidates[lcn], candidates[rcn]))
+        
+        return valid_pairs
+
+    def _get_tile_range(self, S: Sudoku, tile: Tile):
+        tile_range = set()
+        for kind in CONTAINER_TYPES:
+            tile_range |= set(S.containers[kind][tile.pos[kind]])
+        return tile_range
+
+    def _find_y_wing_and_remove(self, S: Sudoku, anchor_index: int):
+        anchor = S.tiles[anchor_index]
+        valid_pairs = self._eliminate_candidates(S, anchor, self._get_node_candidates(S, anchor))
+        for pair in valid_pairs:
+            l, r = pair
+            l_tile = S.tiles[l]
+            r_tile = S.tiles[r]
+            considered_nodes = {l, r, anchor_index}
+            common_range = (self._get_tile_range(S, l_tile)&self._get_tile_range(S, r_tile))-considered_nodes
+
+            if len(common_range)==0:
+                return False
+            
+            else:
+                success = False
+
+                common_option = l_tile.options&r_tile.options
+                for target in common_range:
+                    self._stepper.set_consideration(
+                        considered_nodes, anchor.options|l_tile.options|r_tile.options, 
+                        f"found Y-Wing with anchor at {anchor_index} and nodes at {l}, {r}, remove the shared option {common_option} from {target}",
+                        True)
+                    
+                    if self._remove.launch(S, target, common_option):
+                        success = True
+                    if S.violated:
+                        return False
+
+                return success
+            
+    def launch(self, S: Sudoku):
+        for anchor in filter(lambda idx: S.tiles[idx].n_options==2, range(81)):
+            if S.violated:
+                return False
+            
+            if self._find_y_wing_and_remove(S, anchor):
+                return self._advance.launch(S)
+        
+        return self._fall_back.launch(S)
 
 class Bifurcation(FmtSolvingMethod):
     def launch(self, S: Sudoku):
