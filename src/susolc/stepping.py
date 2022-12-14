@@ -50,19 +50,18 @@ class AnyStep(StepperBase):
         self._counter += 1
         self._step(sudoku, affected_tiles, affected_options)
 
-class InterestingStep(AnyStep):
-    def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
-        self._counter += 1
-        if self.interesting:
-            super()._step(sudoku, affected_tiles, affected_options)
-
 class AnyStepFlush(AnyStep):
     def _step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
         print("\033[H\033[J", end="")
         super()._step(sudoku, affected_tiles, affected_options)
-        
-class InterestingStepFlush(AnyStepFlush):
-    def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
-        self._counter += 1
-        if self.interesting:
-            super()._step(sudoku, affected_tiles, affected_options)
+
+def _get_interestingstep_classes(base: type):
+    class InterestingStepBase(base):
+        def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
+            self._counter += 1
+            if self.interesting:
+                super()._step(sudoku, affected_tiles, affected_options)
+    return InterestingStepBase
+    
+InterestingStep = _get_interestingstep_classes(AnyStep)
+InterestingStepFlush = _get_interestingstep_classes(AnyStepFlush)
