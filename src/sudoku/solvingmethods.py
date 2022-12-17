@@ -60,7 +60,8 @@ class RemoveAndUpdate(FmtSolvingBase):
                     self._stepper.set_consideration(
                         {where_only_one_left},
                         {o},
-                        f"tile {where_only_one_left} is the only tile in {CONTAINER_NAMES[kind]} {tile.pos[kind]+1} with {o} as option")
+                        f"tile {where_only_one_left} is the only tile in {CONTAINER_NAMES[kind]} {tile.pos[kind]+1} with {o} as option",
+                        True)
                     
                     if not self.launch(S, where_only_one_left, remove_opts):
                         return False
@@ -85,9 +86,13 @@ class RemoveAndUpdate(FmtSolvingBase):
             self._stepper.show_step(S, {where}, which)
 
             tile.options -= which
+            if tile.n_options == 1:
+                tile.solved_at = self._stepper._counter
+
             if tile.n_options > 0:
                 return self._update_counter(S, where, diff)
-                
+            
+
         else:
             return False
 

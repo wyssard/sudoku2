@@ -7,6 +7,8 @@ from .structure import Sudoku
 
 
 class StepperBase:
+    _counter = 0
+
     def __init__(self, formatting: Callable[[Sudoku, set, set, set, set], str]) -> None:
         self._fmt = formatting
     
@@ -16,7 +18,7 @@ class StepperBase:
 
     @abstractmethod
     def show_step(self, *args):
-        pass
+        self._counter += 1
 
     def show(self, sudoku: Sudoku):
         self._fmt(sudoku, set(), set(), set(), set())
@@ -25,7 +27,6 @@ class Skipper(StepperBase):
     pass
 
 class AnyStep(StepperBase):
-    _counter = 0
     solving_message: str
 
     def set_consideration(self, tiles: set, options: set, message: str, interesting: bool = False):
@@ -47,7 +48,7 @@ class AnyStep(StepperBase):
                 print("JUST HIT ENTER!")
 
     def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
-        self._counter += 1
+        super().show_step()
         self._step(sudoku, affected_tiles, affected_options)
 
 class AnyStepFlush(AnyStep):

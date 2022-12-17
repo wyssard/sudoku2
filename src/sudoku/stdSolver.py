@@ -5,7 +5,7 @@ from .formatting import print_grid
 from .stepping import StepperBase, Skipper, AnyStep, InterestingStep
 from .solvingmethods import FmtSolvingMethod, RemoveAndUpdate, NTilesNOptions, XWing, Bifurcation
 
-from csv import reader
+from csv import reader, writer
 from pathlib import Path
 from typing import Tuple, List
 
@@ -69,6 +69,9 @@ def load(path: Path) -> Sudoku:
     sudoku = Sudoku(content)
     return sudoku
 
+def save(sudoku: Sudoku, path: Path):
+    with open(path, "w", newline="") as csvfile:
+        writer(csvfile).writerows(sudoku.get_solved())
 
 if __name__=="__main__":
     s = solve(load("examples/evil4.csv"), "grid", "any")
