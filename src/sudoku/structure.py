@@ -108,8 +108,8 @@ class Sudoku:
     def get_options(self) -> List[List[set]]:
         return [[t.options for t in self.tiles[9*r:9*(r+1)]] for r in range(9)]
 
-    def get_solved(self) -> Dict[str, List[List]]:
-        return {
-            "solution": [[list(tile.options)[0] for tile in row] for row in self.get_tiles()],
-            "complexity": [[tile.solved_at for tile in row] for row in self.get_tiles()]
-        }
+    def get_solved(self) -> List[List[int]]:
+        return [[list(tile.options)[0] for tile in row] for row in self.get_tiles()]
+         
+    def get_complexity_map(self) -> List[List[int]]:
+        return [[tile.solved_at for tile in row] for row in self.get_tiles()]

@@ -23,9 +23,8 @@ def solve(s: Sudoku) -> Sudoku:
     }
 
 def produce_plot(sudoku: Sudoku, time: float, steps: int):
-    res = sudoku.get_solved()
-    sol = res["solution"]
-    comp = np.array(res["complexity"])
+    sol = sudoku.get_solved()
+    comp = np.array(sudoku.get_complexity_map())
 
 
     fig = plt.figure(figsize=(3.5, 4.2), tight_layout=True)
@@ -37,7 +36,11 @@ def produce_plot(sudoku: Sudoku, time: float, steps: int):
     tab_ax.text(-0.4, -1.2, rf"in $\bf{round(time, 5)}$ seconds,", fontsize=9, color="0.4")
     tab_ax.text(-0.4, -0.8, rf"requiring $\bf{steps}$ option-removal steps", fontsize=9, color="0.4")
    
-    tab_ax.imshow(comp, cmap="inferno")
+    cmap = tab_ax.imshow(comp, cmap="inferno")
+    cbar = fig.colorbar(cmap, ax=tab_ax, 
+        shrink=0.7, orientation="horizontal", pad=0.03)
+    cbar.set_label(label="solving step at which solution was found", fontsize=7)
+    cbar.ax.tick_params(labelsize=7)
 
     for r in range(9):
         for c in range(9):
@@ -61,5 +64,5 @@ def produce_plot(sudoku: Sudoku, time: float, steps: int):
     plt.savefig("solved.png", dpi=500)
     
 if __name__=="__main__":
-    solved = solve(load("examples/evil4.csv"))
+    solved = solve(load("examples/evil.csv"))
     produce_plot(**solved)
