@@ -10,7 +10,7 @@ Install this library using `pip`.
 
 ```shell
 $ git clone https://github.com/wyssard/sudoku2.git
-$ pip install /sudoku/
+$ pip install /sudoku2/
 ```
 
 ## Usage
