@@ -22,10 +22,10 @@ def solve(s: Sudoku) -> Sudoku:
         "steps": stepper._counter
     }
 
-def produce_plot(sudoku: Sudoku, time: float, steps: int):
+def produce_plot(dest: str, sudoku: Sudoku, time: float, steps: int):
     sol = sudoku.get_solved()
     comp = np.array(sudoku.get_complexity_map())
-
+    min_steps = int(np.min(comp[comp.nonzero()])*0.8)
 
     fig = plt.figure(figsize=(3.5, 4.2), tight_layout=True)
 
@@ -36,7 +36,7 @@ def produce_plot(sudoku: Sudoku, time: float, steps: int):
     tab_ax.text(-0.4, -1.2, rf"in $\bf{round(time, 5)}$ seconds,", fontsize=9, color="0.4")
     tab_ax.text(-0.4, -0.8, rf"requiring $\bf{steps}$ option-removal steps", fontsize=9, color="0.4")
    
-    cmap = tab_ax.imshow(comp, cmap="inferno")
+    cmap = tab_ax.imshow(comp, cmap="inferno", vmin=min_steps)
     cbar = fig.colorbar(cmap, ax=tab_ax, 
         shrink=0.7, orientation="horizontal", pad=0.03)
     cbar.set_label(label="solving step at which solution was found", fontsize=7)
@@ -45,7 +45,7 @@ def produce_plot(sudoku: Sudoku, time: float, steps: int):
     for r in range(9):
         for c in range(9):
             tab_ax.text(c, r, sol[r][c], 
-            color="black" if comp[r,c] > np.mean(comp) else "white",
+            color="black" if comp[r,c] > min_steps+(steps-min_steps)/2 else "white",
             fontsize="medium", horizontalalignment="center", verticalalignment="center")
 
 
@@ -61,8 +61,8 @@ def produce_plot(sudoku: Sudoku, time: float, steps: int):
     tab_ax.axvline(5.5, **line_params)
 
 
-    plt.savefig("solved.png", dpi=500)
+    plt.savefig(dest, dpi=500)
     
 if __name__=="__main__":
-    solved = solve(load("examples/evil.csv"))
-    produce_plot(**solved)
+    solved = solve(load("examples/evil4.csv"))
+    produce_plot("img/solved.png", **solved)

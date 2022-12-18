@@ -18,6 +18,7 @@ _STEPPERS = {
     "any": AnyStep,
     "anyFlush": AnyStepFlush,
     "skip": Skipper,
+    "skipFlush": Skipper,
     "interesting": InterestingStep,
     "interestingFlush": InterestingStepFlush
 }
@@ -45,9 +46,12 @@ def _create_solver(stepper: StepperBase) -> FmtSolvingMethod:
     return generate_solver([NTilesNOptions, XWing, YWing, Bifurcation], stepper)
 
 
-def solve(sudoku: Sudoku, formatting: str, stepping: str, flush: bool) -> Sudoku:
-    solver = _create_solver(_STEPPERS[f"{stepping}{'Flush' if flush else ''}"](_FORMATTERS[formatting]))
-    return solver.launch(sudoku)
+def solve(sudoku: Sudoku, formatting: str, stepping: str, flush: bool = False) -> Sudoku:
+    stepper = _STEPPERS[f"{stepping}{'Flush' if flush else ''}"](_FORMATTERS[formatting])
+    solver = _create_solver(stepper)
+    s = solver.launch(sudoku)
+    stepper.show(s)
+    return s
 
 def load(path: Path) -> Sudoku:
     with open(path) as csvfile:
@@ -62,5 +66,5 @@ def save(sudoku: Sudoku, path: Path):
         writer(csvfile).writerows(sudoku.get_solved())
 
 if __name__=="__main__":
-    s = solve(load("examples/evil4.csv"), "grid", "any")
+    s = solve(load("examples/evil3.csv"), "grid", "skip")
     
