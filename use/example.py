@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 def solve(s: Sudoku) -> Sudoku:
     stepper = Skipper(print_grid)
-    solver = generate_solver([NTilesNOptions, XWing, YWing, Bifurcation], stepper)
+    solver = generate_solver([XWing, NTilesNOptions, YWing, Bifurcation], stepper)
     t0 = perf_counter()
     s = solver.launch(s)
     dt = perf_counter()-t0

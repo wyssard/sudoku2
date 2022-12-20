@@ -66,5 +66,5 @@ def save(sudoku: Sudoku, path: Path):
         writer(csvfile).writerows(sudoku.get_solved())
 
 if __name__=="__main__":
-    s = solve(load("examples/evil3.csv"), "grid", "skip")
+    s = solve(load("examples/evil3.csv"), "grid", "interesting")
     
