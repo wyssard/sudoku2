@@ -9,27 +9,64 @@ from typing import Set, List, Tuple
 from copy import deepcopy
 
 
+class SolverError(RuntimeError):
+    def __init__(self) -> None:
+        super().__init__("could not solve puzzle with the solving methods given")
+
+class StepperMissingError(NotImplementedError):
+    def __init__(self, method: str) -> None:
+        super().__init__(f"no stepper has been set for solving method {method}")
+
+class RemoverMissingError(NotImplementedError):
+    def __init__(self, method: str) -> None:
+        super().__init__(f"no remover has been set for solving method {method}")
+
+class _DeadStepper(StepperBase):
+    def __init__(self, name: str) -> None:
+        self._name = name
+
+    def set_consideration(self, *args):
+        raise StepperMissingError(self._name)
+
+    def show_step(self, *args):
+        raise StepperMissingError(self._name)
+
+
 class FmtSolvingBase:
-    def __init__(self, stepper: StepperBase) -> None:
+    def __init__(self, stepper: StepperBase = None) -> None:
+        self._stepper = stepper if stepper else _DeadStepper(self.__class__.__name__)
+
+    def set_stepper(self, stepper: StepperBase):
         self._stepper = stepper
 
     @abstractmethod
     def launch(self, S: Sudoku, *args):
         pass
 
+class _DeadRemover(FmtSolvingBase):
+    def __init__(self, name) -> None:
+        self._name = name
+
+    def launch(self, *args):
+        raise RemoverMissingError(self._name)
+
 class _SolvingFail(FmtSolvingBase):
     def __init__(self):
         pass
 
     def launch(self, S: Sudoku):
-        return False
+        raise SolverError
+
 
 class FmtSolvingMethod(FmtSolvingBase):
-    def __init__(self, stepper: StepperBase, remove: RemoveAndUpdate) -> None:
+    def __init__(self, stepper: StepperBase = None, remover: RemoveAndUpdate = None) -> None:
         super().__init__(stepper)
-        self._remove = remove
+        self._remove = remover if remover else _DeadRemover(self.__class__.__name__)
         self._advance = self
         self._fall_back = _SolvingFail()
+
+    def set_remover(self, remover: RemoveAndUpdate):
+        self._remove = remover
 
     def set_fall_back(self, fall_back: FmtSolvingMethod):
         self._fall_back = fall_back
@@ -42,9 +79,14 @@ class FmtSolvingMethod(FmtSolvingBase):
         pass
 
 class FmtParamSolvingMethod(FmtSolvingMethod):
-    N_THRESHOLD: int
-    N_INIT: int
-    _n: int
+    _N_MIN = 1
+
+    def __init__(self, param: int, stepper: StepperBase = None, remover: RemoveAndUpdate = None) -> None:
+        super().__init__(stepper, remover)
+        if param >= self._N_MIN:
+            self._n = param
+        else:
+            raise ValueError(f"parameter of {self.__class__.__name__} solving method must be larger or equal to {self._N_MIN} but {param} is given")
 
 
 class RemoveAndUpdate(FmtSolvingBase):
@@ -78,7 +120,20 @@ class RemoveAndUpdate(FmtSolvingBase):
                     return False
 
         return self._counter_update_chain(S, tile_index, remove_options)
+
+    def _remove_from_neighbors(self, S: Sudoku, tile_index: int):
+        tile = S.tiles[tile_index]
+        option_to_remove = list(tile.options)[0]
+        for kind in CONTAINER_TYPES:
+            for tidx in set(S.containers[kind][tile.pos[kind]])-{tile_index}:
+                S.tiles[tidx].options -= {option_to_remove}
+                # if option_to_remove in S.tiles[tidx].options:
+
+                #     if not self.launch(S, tidx, {option_to_remove}):
+                #         return False
         
+        return True
+
     def launch(self, S: Sudoku, where: int, which: set) -> bool:
         tile = S.tiles[where]
         if (diff:=tile.options & which):
@@ -88,19 +143,18 @@ class RemoveAndUpdate(FmtSolvingBase):
             tile.options -= which
             if tile.n_options == 1:
                 tile.solved_at = self._stepper._counter
-
+            
             if tile.n_options > 0:
                 return self._update_counter(S, where, diff)
+            else:
+                return False
             
-
         else:
             return False
 
 
 class NTilesNOptions(FmtParamSolvingMethod):
-    N_THRESHOLD = 3
-    N_INIT = 1
-    _n = N_INIT
+    _N_MIN = 1
 
     def _get_solving_message(self, n: int, kind: str, c_index: int, matches: set, shared_options: set):
         c_name = CONTAINER_NAMES[kind]
@@ -152,7 +206,6 @@ class NTilesNOptions(FmtParamSolvingMethod):
 
     def launch(self, S: Sudoku):
         if S.done:
-            # self._stepper.show(S)
             return S
         else:
             for kind in CONTAINER_TYPES:
@@ -161,20 +214,12 @@ class NTilesNOptions(FmtParamSolvingMethod):
                         return False
 
                     if self._n_times_n_options_removal_container(S, kind, kind_index, self._n):
-                        self._n = self.N_INIT
                         return self._advance.launch(S)
 
-            if self._n < self.N_THRESHOLD:
-                self._n += 1
-                return self.launch(S)
-            else:
-                self._n = self.N_INIT
-                return self._fall_back.launch(S)    
+            return self._fall_back.launch(S)
 
-class XWing(FmtParamSolvingMethod):
-    N_THRESHOLD = 3
-    N_INIT = 2
-    _n = N_INIT
+class ScaledXWing(FmtParamSolvingMethod):
+    _N_MIN = 2
 
     def _find_option_in_n_by_n(self, S: Sudoku, n: int, primary_kind: str, option: int):
         primary_kind_tiles = []
@@ -220,21 +265,17 @@ class XWing(FmtParamSolvingMethod):
                 return None     
 
     def launch(self, S: Sudoku):
-        for direction in ("r", "c"):
-            for option in range(1, 10):
-                if S.violated:
-                    return False
-
-                if self._option_in_n_by_n_removal(S, self._n, direction, option):
-                    # logging.info(f"{option} appears in {scale}x{scale} square")
-                    self._n = self.N_INIT
-                    return self._advance.launch(S)
-
-        if self._n < self.N_THRESHOLD:
-            self._n += 1
-            return self.launch(S)
+        if S.done:
+            return S
         else:
-            self._n = self.N_INIT
+            for direction in ("r", "c"):
+                for option in range(1, 10):
+                    if S.violated:
+                        return False
+
+                    if self._option_in_n_by_n_removal(S, self._n, direction, option):
+                        return self._advance.launch(S)
+
             return self._fall_back.launch(S)
 
 class YWing(FmtSolvingMethod):
@@ -304,14 +345,17 @@ class YWing(FmtSolvingMethod):
                 return success
             
     def launch(self, S: Sudoku):
-        for anchor in filter(lambda idx: S.tiles[idx].n_options==2, range(81)):
-            if S.violated:
-                return False
+        if S.done:
+            return S
+        else:
+            for anchor in filter(lambda idx: S.tiles[idx].n_options==2, range(81)):
+                if S.violated:
+                    return False
+                
+                if self._find_y_wing_and_remove(S, anchor):
+                    return self._advance.launch(S)
             
-            if self._find_y_wing_and_remove(S, anchor):
-                return self._advance.launch(S)
-        
-        return self._fall_back.launch(S)
+            return self._fall_back.launch(S)
 
 class Bifurcation(FmtSolvingMethod):
     def launch(self, S: Sudoku):
