@@ -74,6 +74,24 @@ class FmtSolvingMethod(FmtSolvingBase):
     def set_advance(self, advance: FmtSolvingMethod):
         self._advance = advance
 
+    def _remove_from_neighbors(self, S: Sudoku, tile_index: int):
+        tile = S.tiles[tile_index]
+        option_to_remove = list(tile.options)[0]
+        for kind in CONTAINER_TYPES:
+            for tidx in set(S.containers[kind][tile.pos[kind]])-{tile_index}:
+                if option_to_remove in S.tiles[tidx].options:
+                    if S.violated:
+                        return False
+
+                    self._stepper.set_consideration(
+                        {tile_index},
+                        {option_to_remove},
+                        f"value of tile {tile_index} has been fixed to {option_to_remove}; remove this candidate from its neighbors",
+                        True)
+
+                    self._remove.launch(S, tidx, {option_to_remove})
+        return True
+
     @abstractmethod
     def launch(self, S: Sudoku):
         pass
@@ -87,6 +105,21 @@ class FmtParamSolvingMethod(FmtSolvingMethod):
             self._n = param
         else:
             raise ValueError(f"parameter of {self.__class__.__name__} solving method must be larger or equal to {self._N_MIN} but {param} is given")
+
+
+# To Do
+# Implement CounterUpdateChain and RemoveNeighboringOption as separate solving
+# methods that get called whenever another solving method is successfull. This
+# should enable us to speed up the solver a little bit by removing the 
+# NTilesNOptions(1) method from the solving method order. This could possibly 
+# also lead to a redesign of the RemoveAndUpdate launch method.
+
+class CounterUpdateChain(FmtSolvingBase):
+    pass
+
+class RemoveNeighboringOption(FmtSolvingBase):
+    pass
+
 
 
 class RemoveAndUpdate(FmtSolvingBase):
@@ -105,8 +138,9 @@ class RemoveAndUpdate(FmtSolvingBase):
                         f"tile {where_only_one_left} is the only tile in {CONTAINER_NAMES[kind]} {tile.pos[kind]+1} with {o} as option",
                         True)
                     
-                    if not self.launch(S, where_only_one_left, remove_opts):
+                    if not self._remove(S, where_only_one_left, remove_opts):
                         return False
+        
         return True
 
     def _update_counter(self, S: Sudoku, tile_index: int, remove_options: set):
@@ -120,21 +154,8 @@ class RemoveAndUpdate(FmtSolvingBase):
                     return False
 
         return self._counter_update_chain(S, tile_index, remove_options)
-
-    def _remove_from_neighbors(self, S: Sudoku, tile_index: int):
-        tile = S.tiles[tile_index]
-        option_to_remove = list(tile.options)[0]
-        for kind in CONTAINER_TYPES:
-            for tidx in set(S.containers[kind][tile.pos[kind]])-{tile_index}:
-                S.tiles[tidx].options -= {option_to_remove}
-                # if option_to_remove in S.tiles[tidx].options:
-
-                #     if not self.launch(S, tidx, {option_to_remove}):
-                #         return False
-        
-        return True
-
-    def launch(self, S: Sudoku, where: int, which: set) -> bool:
+ 
+    def _remove(self, S: Sudoku, where: int, which: set) -> bool:
         tile = S.tiles[where]
         if (diff:=tile.options & which):
             
@@ -147,11 +168,20 @@ class RemoveAndUpdate(FmtSolvingBase):
             if tile.n_options > 0:
                 return self._update_counter(S, where, diff)
             else:
+                S.violated = True
                 return False
-            
         else:
             return False
 
+    def launch(self, S: Sudoku, where: int, which: set) -> bool:
+        # if self._remove(S, where, which):
+        #     if S.tiles[where].n_options == 1:
+        #         return self._remove_from_neighbors(S, where)
+        #     else:
+        #         return True
+        # else:
+        #     return False
+        return self._remove(S, where, which)
 
 class NTilesNOptions(FmtParamSolvingMethod):
     _N_MIN = 1
@@ -205,6 +235,7 @@ class NTilesNOptions(FmtParamSolvingMethod):
         return success
 
     def launch(self, S: Sudoku):
+        success = False
         if S.done:
             return S
         else:
@@ -214,9 +245,13 @@ class NTilesNOptions(FmtParamSolvingMethod):
                         return False
 
                     if self._n_times_n_options_removal_container(S, kind, kind_index, self._n):
-                        return self._advance.launch(S)
+                        success = True
+                        # return self._advance.launch(S)
 
-            return self._fall_back.launch(S)
+            if success:
+                return self._advance.launch(S)
+            else:
+                return self._fall_back.launch(S)
 
 class ScaledXWing(FmtParamSolvingMethod):
     _N_MIN = 2
@@ -262,9 +297,10 @@ class ScaledXWing(FmtParamSolvingMethod):
                 return True
 
             else:
-                return None     
+                return False     
 
     def launch(self, S: Sudoku):
+        success = False
         if S.done:
             return S
         else:
@@ -274,9 +310,13 @@ class ScaledXWing(FmtParamSolvingMethod):
                         return False
 
                     if self._option_in_n_by_n_removal(S, self._n, direction, option):
-                        return self._advance.launch(S)
-
-            return self._fall_back.launch(S)
+                        success = True
+                        # return self._advance.launch(S)
+        
+            if success:
+                return self._advance.launch(S)
+            else:
+                return self._fall_back.launch(S)
 
 class YWing(FmtSolvingMethod):
     def _get_node_candidates(self, S: Sudoku, anchor: Tile):
@@ -345,6 +385,7 @@ class YWing(FmtSolvingMethod):
                 return success
             
     def launch(self, S: Sudoku):
+        success = False
         if S.done:
             return S
         else:
@@ -353,9 +394,13 @@ class YWing(FmtSolvingMethod):
                     return False
                 
                 if self._find_y_wing_and_remove(S, anchor):
-                    return self._advance.launch(S)
+                    success = True
+                    # return self._advance.launch(S)
             
-            return self._fall_back.launch(S)
+            if success:
+                return self._advance.launch(S)
+            else:
+                return self._fall_back.launch(S)
 
 class Bifurcation(FmtSolvingMethod):
     def launch(self, S: Sudoku):

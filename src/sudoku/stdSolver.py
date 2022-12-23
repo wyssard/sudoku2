@@ -26,17 +26,16 @@ _STEPPERS = {
 
 def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase):
     remover = RemoveAndUpdate(stepper)
-    # initial_run = NTilesNOptions(1, stepper, remover)
-    
-
     init_methods: List[FmtSolvingMethod] = []
+
+    init_run = NTilesNOptions(1, stepper, remover)
 
     for method in method_order:
         method.set_stepper(stepper)
         method.set_remover(remover)
         init_methods.append(method)
 
-    # initial_run.set_fall_back(init_methods[0])
+    init_run.set_fall_back(init_methods[0])
     init_methods[-1].set_advance(init_methods[0])
 
     for i in range(0, len(method_order)-1):
@@ -44,7 +43,8 @@ def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase)
         method.set_advance(init_methods[0])
         method.set_fall_back(init_methods[i+1])
     
-    return init_methods[0]
+    # return init_methods[0]
+    return init_run
      
 def _create_solver(stepper: StepperBase) -> FmtSolvingMethod:
     return generate_solver(

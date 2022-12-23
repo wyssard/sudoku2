@@ -8,12 +8,11 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 def solve(s: Sudoku) -> Sudoku:
-    stepper = Skipper(print_grid)
+    stepper = InterestingStepFlush(print_grid)
     solver = generate_solver(
         [
             ScaledXWing(2),
             ScaledXWing(3),
-            NTilesNOptions(1),
             NTilesNOptions(2),
             YWing(),
             Bifurcation()
