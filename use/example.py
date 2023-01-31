@@ -8,13 +8,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 def solve(s: Sudoku) -> Sudoku:
-    stepper = InterestingStepFlush(print_grid)
+    stepper = Skipper(print_grid)
     solver = generate_solver(
         [
-            ScaledXWing(2),
-            ScaledXWing(3),
-            NTilesNOptions(2),
+            # NTilesNOptions(2),
             YWing(),
+            ScaledXWing(2),
+            # ScaledXWing(3),
             Bifurcation()
         ], stepper)
     t0 = perf_counter()

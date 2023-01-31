@@ -107,23 +107,9 @@ class FmtParamSolvingMethod(FmtSolvingMethod):
             raise ValueError(f"parameter of {self.__class__.__name__} solving method must be larger or equal to {self._N_MIN} but {param} is given")
 
 
-# To Do
-# Implement CounterUpdateChain and RemoveNeighboringOption as separate solving
-# methods that get called whenever another solving method is successfull. This
-# should enable us to speed up the solver a little bit by removing the 
-# NTilesNOptions(1) method from the solving method order. This could possibly 
-# also lead to a redesign of the RemoveAndUpdate launch method.
-
-class CounterUpdateChain(FmtSolvingBase):
-    pass
-
-class RemoveNeighboringOption(FmtSolvingBase):
-    pass
-
-
 
 class RemoveAndUpdate(FmtSolvingBase):
-    def _counter_update_chain(self, S: Sudoku, tile_index: int, remove_options: set):
+    def _one_tile_with_option_left(self, S: Sudoku, tile_index: int, remove_options: set):
         tile = S.tiles[tile_index]
         for kind in CONTAINER_TYPES:
             counter = S.counters[kind][tile.pos[kind]]
@@ -138,10 +124,44 @@ class RemoveAndUpdate(FmtSolvingBase):
                         f"tile {where_only_one_left} is the only tile in {CONTAINER_NAMES[kind]} {tile.pos[kind]+1} with {o} as option",
                         True)
                     
-                    if not self._remove(S, where_only_one_left, remove_opts):
-                        return False
+                    self.launch(S, where_only_one_left, remove_opts)
+                
+                if S.violated:
+                    return False
+
+        return True
+
+    def _remove_option_from_neighbors(self, S: Sudoku, tile_index: int):
+        tile = S.tiles[tile_index]
+        for kind in CONTAINER_TYPES:
+            container = S.containers[kind][tile.pos[kind]]
+            for tidx in set(container)-{tile_index}:
+                
+                self._stepper.set_consideration(
+                    {tile_index},
+                    tile.options,
+                    f"value of tile {tile_index} has been fixed to {tile.options}, thus removing this option from tile {tidx}",
+                    False)
+
+                self.launch(S, tidx, tile.options)
+                
+                if S.violated:
+                    return False
         
         return True
+
+    def _update_chain_removal(self, S: Sudoku, tile_index: int, remove_options: set):
+        tile = S.tiles[tile_index]
+        if not self._one_tile_with_option_left(S, tile_index, remove_options):
+            return False
+
+        if tile.n_options == 1:
+            tile.solved_at = self._stepper._counter
+            if not self._remove_option_from_neighbors(S, tile_index):
+                return False
+
+        return True
+
 
     def _update_counter(self, S: Sudoku, tile_index: int, remove_options: set):
         tile = S.tiles[tile_index]
@@ -152,36 +172,33 @@ class RemoveAndUpdate(FmtSolvingBase):
                 if len(counter[o-1]) == 0:
                     S.violated = True
                     return False
+        
+        return True
+    
+    def _update_and_check_violations(self, S: Sudoku, tile_index: int, remove_options: set):
+        if S.tiles[tile_index].n_options > 0:
+            if self._update_counter(S, tile_index, remove_options):
+                return True
+        
+        S.violated = True
+        return False
 
-        return self._counter_update_chain(S, tile_index, remove_options)
- 
-    def _remove(self, S: Sudoku, where: int, which: set) -> bool:
+    def _remove_and_check_violations(self, S: Sudoku, where: int, which: set) -> bool:
+        self._stepper.show_step(S, {where}, which)
+        S.tiles[where].options -= which
+        return self._update_and_check_violations(S, where, which)
+
+
+    def launch(self, S: Sudoku, where: int, which: set) -> bool:
         tile = S.tiles[where]
-        if (diff:=tile.options & which):
-            
-            self._stepper.show_step(S, {where}, which)
-
-            tile.options -= which
-            if tile.n_options == 1:
-                tile.solved_at = self._stepper._counter
-            
-            if tile.n_options > 0:
-                return self._update_counter(S, where, diff)
+        if (diff:=tile.options&which):
+            if self._remove_and_check_violations(S, where, diff):
+                return self._update_chain_removal(S, where, diff)
             else:
-                S.violated = True
                 return False
         else:
             return False
 
-    def launch(self, S: Sudoku, where: int, which: set) -> bool:
-        # if self._remove(S, where, which):
-        #     if S.tiles[where].n_options == 1:
-        #         return self._remove_from_neighbors(S, where)
-        #     else:
-        #         return True
-        # else:
-        #     return False
-        return self._remove(S, where, which)
 
 class NTilesNOptions(FmtParamSolvingMethod):
     _N_MIN = 1
