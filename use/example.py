@@ -1,7 +1,7 @@
 from sudoku import load, generate_solver, Sudoku
 from sudoku.stepping import InterestingStepFlush, Skipper
 from sudoku.formatting import print_grid
-from sudoku.solvingmethods import NTilesNOptions, XWing, YWing, Bifurcation
+from sudoku.solvingmethods import NTilesNOptions, ScaledXWing, YWing, Bifurcation
 
 from time import perf_counter
 import numpy as np
@@ -9,12 +9,19 @@ from matplotlib import pyplot as plt
 
 def solve(s: Sudoku) -> Sudoku:
     stepper = Skipper(print_grid)
-    solver = generate_solver([XWing, NTilesNOptions, YWing, Bifurcation], stepper)
+    solver = generate_solver(
+        [
+            # NTilesNOptions(2),
+            YWing(),
+            ScaledXWing(2),
+            # ScaledXWing(3),
+            Bifurcation()
+        ], stepper)
     t0 = perf_counter()
     s = solver.launch(s)
     dt = perf_counter()-t0
     stepper.show(s)
-    print(f"solved in {round(dt, 5)} seconds")
+    print(f"solved in {round(dt, 6)} seconds")
     print(f"total steps: {stepper._counter}")
     return {
         "sudoku": s,

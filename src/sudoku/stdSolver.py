@@ -3,7 +3,7 @@ from __future__ import annotations
 from .structure import Sudoku
 from .formatting import print_grid
 from .stepping import StepperBase, Skipper, AnyStep, AnyStepFlush, InterestingStep, InterestingStepFlush
-from .solvingmethods import FmtSolvingMethod, RemoveAndUpdate, NTilesNOptions, XWing, YWing, Bifurcation
+from .solvingmethods import FmtSolvingMethod, RemoveAndUpdate, NTilesNOptions, ScaledXWing, YWing, Bifurcation
 
 from csv import reader, writer
 from pathlib import Path
@@ -26,24 +26,37 @@ _STEPPERS = {
 
 def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase):
     remover = RemoveAndUpdate(stepper)
-
     init_methods: List[FmtSolvingMethod] = []
 
-    for method in method_order:
-        init_methods.append(method(stepper, remover))
+    init_run = NTilesNOptions(1, stepper, remover)
 
-    init_methods[0].set_fall_back(init_methods[1])
+    for method in method_order:
+        method.set_stepper(stepper)
+        method.set_remover(remover)
+        init_methods.append(method)
+
+    init_run.set_fall_back(init_methods[0])
     init_methods[-1].set_advance(init_methods[0])
 
-    for i in range(1, len(method_order)-1):
+    for i in range(0, len(method_order)-1):
         method = init_methods[i]
         method.set_advance(init_methods[0])
         method.set_fall_back(init_methods[i+1])
     
-    return init_methods[0]
+
+    # return init_methods[0]
+    return init_run
      
 def _create_solver(stepper: StepperBase) -> FmtSolvingMethod:
-    return generate_solver([NTilesNOptions, XWing, YWing, Bifurcation], stepper)
+    return generate_solver(
+        [
+            NTilesNOptions(1), 
+            ScaledXWing(2), 
+            YWing(), 
+            NTilesNOptions(2), 
+            ScaledXWing(3), 
+            Bifurcation()
+        ], stepper)
 
 
 def solve(sudoku: Sudoku, formatting: str, stepping: str, flush: bool = False) -> Sudoku:
@@ -64,7 +77,4 @@ def load(path: Path) -> Sudoku:
 def save(sudoku: Sudoku, path: Path):
     with open(path, "w", newline="") as csvfile:
         writer(csvfile).writerows(sudoku.get_solved())
-
-if __name__=="__main__":
-    s = solve(load("examples/evil3.csv"), "grid", "interesting")
     

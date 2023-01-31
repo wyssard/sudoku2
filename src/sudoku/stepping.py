@@ -23,6 +23,7 @@ class StepperBase:
     def show(self, sudoku: Sudoku):
         self._fmt(sudoku, set(), set(), set(), set())
 
+
 class Skipper(StepperBase):
     pass
 
