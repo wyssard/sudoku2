@@ -1,30 +1,37 @@
 from __future__ import annotations
 
 from .structure import Sudoku
-from .formatting import print_grid
-from .stepping import StepperBase, Skipper, AnyStep, AnyStepFlush, InterestingStep, InterestingStepFlush
+from .formatting import ConsoleFormatter
+from .stepping import StepperBase, Skipper, AnyStep, InterestingStep, ConsoleTrigger
 from .solvingmethods import FmtSolvingMethod, RemoveAndUpdate, NTilesNOptions, ScaledXWing, YWing, Bifurcation
 
 from csv import reader, writer
 from pathlib import Path
-from typing import Tuple, List
+from typing import Tuple, List, Dict, Type
 
 
 _FORMATTERS = {
-    "grid": print_grid
+    "console": ConsoleFormatter
 }
 
-_STEPPERS = {
+_STEPPERS: Dict[str, Type[StepperBase]] = {
     "any": AnyStep,
-    "anyFlush": AnyStepFlush,
     "skip": Skipper,
-    "skipFlush": Skipper,
-    "interesting": InterestingStep,
-    "interestingFlush": InterestingStepFlush
+    "interesting": InterestingStep
 }
 
 
 def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase):
+    """
+    Build a Sudoku solver by deciding in what order the solving methods (i.e.
+    the instances of `FmtSolvingMethod` classes) are chained together. The 
+    order of the `method_order` array implies that after the failure of the 
+    n-th method, the n+1-th method will be used. On the other hand, at success
+    of the n-th method, the solver will proceed by calling the 1st element of
+    `method_order`. Moreover, any `StepperBase` object must be provided to guide
+    the user through the solving process.
+    """
+
     remover = RemoveAndUpdate(stepper)
     init_methods: List[FmtSolvingMethod] = []
 
@@ -43,8 +50,6 @@ def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase)
         method.set_advance(init_methods[0])
         method.set_fall_back(init_methods[i+1])
     
-
-    # return init_methods[0]
     return init_run
      
 def _create_solver(stepper: StepperBase) -> FmtSolvingMethod:
@@ -59,13 +64,25 @@ def _create_solver(stepper: StepperBase) -> FmtSolvingMethod:
 
 
 def solve(sudoku: Sudoku, formatting: str, stepping: str, flush: bool = False) -> Sudoku:
-    stepper = _STEPPERS[f"{stepping}{'Flush' if flush else ''}"](_FORMATTERS[formatting])
+    """
+    Solve a Sudoku given as `Sudoku` object (possibly obtained by the `load`
+    function). Currently, the `formatting` parameter only takes 'console' as 
+    possible value. You can choose between the steppers 'any', to render every
+    solving step, 'skip' to completely suppress rendering, or 'interesting' to
+    only print more elaborate solving methods. Use the `flush` parameter to 
+    erase the rendered output of the previous solving step before continuing.
+    """
+    stepper = _STEPPERS[stepping](_FORMATTERS[formatting](flush=flush), ConsoleTrigger())
     solver = _create_solver(stepper)
     s = solver.launch(sudoku)
     stepper.show(s)
     return s
 
 def load(path: Path) -> Sudoku:
+    """
+    Load a Sudoku puzzle stored as `csv` file at `path` and build a `Sudoku`
+    structure form the tow-dimensional grid.
+    """
     with open(path) as csv_file:
         rows = reader(csv_file, skipinitialspace=True)
         content = [(int(elt) if elt else 0) for row in rows for elt in row]
@@ -74,6 +91,9 @@ def load(path: Path) -> Sudoku:
     return sudoku
 
 def save(sudoku: Sudoku, path: Path):
+    """
+    Write the solved `sudoku` puzzle to a `csv` file at `path`
+    """
     with open(path, "w", newline="") as csv_file:
         writer(csv_file).writerows(sudoku.get_solved())
     

@@ -48,6 +48,7 @@ class Tile:
         Get the row, column and square index of the tile formatted as
         `{'r': *row index*, 'c': *column index*, 's': *square index*}`.
         """
+        return self._pos
 
     @property
     def options(self) -> set:

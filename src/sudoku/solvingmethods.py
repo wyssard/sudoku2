@@ -44,6 +44,13 @@ class RemoverMissingError(NotImplementedError):
     def __init__(self, method: str) -> None:
         super().__init__(f"no remover has been set for solving method {method}")
 
+class StepperMissingError(NotImplementedError):
+    """
+    No stepper has been assigned to the solving method. 
+    """
+    def __init__(self, method: str) -> None:
+        super().__init__(f"no stepper has been set for solving method {method}")
+
 
 class FmtSolvingBase:
     """
@@ -95,7 +102,7 @@ class _SolvingFail(FmtSolvingBase):
         pass
 
     def launch(self, S: Sudoku):
-        raise SolverError
+        raise SolverError()
 
 
 class FmtSolvingMethod(FmtSolvingBase):
