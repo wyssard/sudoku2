@@ -50,7 +50,6 @@ def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase)
 def _create_solver(stepper: StepperBase) -> FmtSolvingMethod:
     return generate_solver(
         [
-            NTilesNOptions(1), 
             ScaledXWing(2), 
             YWing(), 
             NTilesNOptions(2), 

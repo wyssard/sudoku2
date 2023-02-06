@@ -7,7 +7,7 @@ from .structure import Sudoku
 
 
 class StepperBase:
-    _counter = 0
+    counter = 0
 
     def __init__(self, formatting: Callable[[Sudoku, set, set, set, set], str]) -> None:
         self._fmt = formatting
@@ -18,7 +18,7 @@ class StepperBase:
 
     @abstractmethod
     def show_step(self, *args):
-        self._counter += 1
+        self.counter += 1
 
     def show(self, sudoku: Sudoku):
         self._fmt(sudoku, set(), set(), set(), set())
@@ -38,7 +38,7 @@ class AnyStep(StepperBase):
 
     def _step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
         self._fmt(sudoku, self.considered_tiles, self.considered_options, affected_tiles, affected_options)
-        print(f"solving step {self._counter}: {self.solving_message}")
+        print(f"solving step {self.counter}: {self.solving_message}")
         print(f"status: {'violated' if sudoku.violated else 'ok'}")
 
         answering = True
@@ -60,7 +60,7 @@ class AnyStepFlush(AnyStep):
 def _get_interestingstep_classes(base: type):
     class InterestingStepBase(base):
         def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
-            self._counter += 1
+            self.counter += 1
             if self.interesting:
                 super()._step(sudoku, affected_tiles, affected_options)
     return InterestingStepBase

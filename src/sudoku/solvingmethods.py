@@ -10,18 +10,33 @@ from copy import deepcopy
 
 
 class SolverError(RuntimeError):
+    """
+    The puzzle can't be solved with the given solver.
+    """
     def __init__(self) -> None:
         super().__init__("could not solve puzzle with the solving methods given")
 
 class StepperMissingError(NotImplementedError):
+    """
+    No stepper has been assigned to the solving method. 
+    """
     def __init__(self, method: str) -> None:
         super().__init__(f"no stepper has been set for solving method {method}")
 
 class RemoverMissingError(NotImplementedError):
+    """
+    No remover has been assigned to the solving method.
+    """
     def __init__(self, method: str) -> None:
         super().__init__(f"no remover has been set for solving method {method}")
 
 class _DeadStepper(StepperBase):
+    """
+    Trivial 'stepper' class serving as default value for any variable whose
+    value must be of type `StepperBase`. That is, if no proper 'stepper' is
+    assigned, this placeholder will raise an error whenever the user tries to 
+    make use of the abstract methods that any stepper needs to implement.
+    """
     def __init__(self, name: str) -> None:
         self._name = name
 
@@ -33,6 +48,18 @@ class _DeadStepper(StepperBase):
 
 
 class FmtSolvingBase:
+    """
+    Class to define the basic structure of any object the Sudoku solver 
+    consists of. Such child classes must always implement a `launch` method 
+    which, in the case of the `RemoveAndUpdate` class, invokes the removal 
+    process whereas in the case of any regular solving method (i.e. of any 
+    class inheriting from `FmtSolvingMethod`), the respective solving algorithm
+    will be invoked.
+
+    Any such class has a `_stepper` attribute which is the tool needed to guide
+    the user through the solving process and to collect information thereof.
+    """
+
     def __init__(self, stepper: StepperBase = None) -> None:
         self._stepper = stepper if stepper else _DeadStepper(self.__class__.__name__)
 
@@ -41,9 +68,19 @@ class FmtSolvingBase:
 
     @abstractmethod
     def launch(self, S: Sudoku, *args):
+        """
+        Interface method to invoke the internals of the corresponding solving
+        algorithm.
+        """
         pass
 
 class _DeadRemover(FmtSolvingBase):
+    """
+    Trivial 'Remover' class to raise an error when its `launch` method is called.
+    Instances of this class can be used as default value for variables that 
+    serve as 'Remover', thus telling the user that no proper 'Remover' has been
+    specified.
+    """
     def __init__(self, name) -> None:
         self._name = name
 
@@ -51,6 +88,11 @@ class _DeadRemover(FmtSolvingBase):
         raise RemoverMissingError(self._name)
 
 class _SolvingFail(FmtSolvingBase):
+    """
+    Trivial 'Solving-Method' whose `launch` method is invoked when all its
+    precedent solving algorithms failed. This method will thus raise an error and
+    terminate the solving process. 
+    """
     def __init__(self):
         pass
 
@@ -59,6 +101,33 @@ class _SolvingFail(FmtSolvingBase):
 
 
 class FmtSolvingMethod(FmtSolvingBase):
+    """
+    Base class to define the structure of the solver. 
+    
+    Any class inheriting from this base represents an algorithm used to 
+    eliminate candidate options from the unsolved puzzle. 
+    
+    The implementation of these algorithms happens by means of overloading the 
+    abstract `launch` method. This method, taking the unsolved puzzle as 
+    argument, executes the corresponding solving algorithm and depending on 
+    its success decides what solving method to try next. That is, if the present
+    algorithm succeeds at eliminating at least one candidate option, then the 
+    `launch` method of the `_advance` attribute is invoked. On the other hand, 
+    if the present algorithm fails at removing candidates, the unsolved puzzle 
+    is passed to the `launch` implementation of the `_fall_back` attribute.
+    Both, the `_advance` and the `_fall_back` object must therefore be an 
+    instances of a children of `FmtSolvingMethod` themselves.
+
+    If none of the implemented solving methods (i.e. non of the instances of
+    the corresponding children of `FmtSolvingMethod`) manage to contribute to 
+    the solution, the puzzle must be considered unsolvable. Therefore, the 
+    `_fall_back` attribute defaults to `_SolvingFail()` which is a trivial 
+    child of `FmtSolvingMethod` whose `launch` method raises an error. Hence, if 
+    any solving-method object does not explicitly link a `_fall_back` instance,
+    it is automatically considered to represent the worst case algorithm to be 
+    tried as its failure implies the insolubility of the puzzle by this solver.
+    """
+
     def __init__(self, stepper: StepperBase = None, remover: RemoveAndUpdate = None) -> None:
         super().__init__(stepper)
         self._remove = remover if remover else _DeadRemover(self.__class__.__name__)
@@ -74,29 +143,22 @@ class FmtSolvingMethod(FmtSolvingBase):
     def set_advance(self, advance: FmtSolvingMethod):
         self._advance = advance
 
-    def _remove_from_neighbors(self, S: Sudoku, tile_index: int):
-        tile = S.tiles[tile_index]
-        option_to_remove = list(tile.options)[0]
-        for kind in CONTAINER_TYPES:
-            for tidx in set(S.containers[kind][tile.pos[kind]])-{tile_index}:
-                if option_to_remove in S.tiles[tidx].options:
-                    if S.violated:
-                        return False
-
-                    self._stepper.set_consideration(
-                        {tile_index},
-                        {option_to_remove},
-                        f"value of tile {tile_index} has been fixed to {option_to_remove}; remove this candidate from its neighbors",
-                        True)
-
-                    self._remove.launch(S, tidx, {option_to_remove})
-        return True
-
     @abstractmethod
     def launch(self, S: Sudoku):
         pass
 
 class FmtParamSolvingMethod(FmtSolvingMethod):
+    """
+    Base class for solving methods that depend on a parameter. The minimum value
+    the parameter takes is specified by the `_N_MIN` class variable which varies
+    between the different solving method classes that inherit from the present
+    class. 
+
+    The solving method's parameter is set at initialization of any such object; 
+    if the given parameter is smaller than `_N_MIN`, a corresponding error
+    terminates the program.
+    """
+
     _N_MIN = 1
 
     def __init__(self, param: int, stepper: StepperBase = None, remover: RemoveAndUpdate = None) -> None:
@@ -109,13 +171,34 @@ class FmtParamSolvingMethod(FmtSolvingMethod):
 
 
 class RemoveAndUpdate(FmtSolvingBase):
-    def _one_tile_with_option_left(self, S: Sudoku, tile_index: int, remove_options: set):
+    """
+    Special solving-method class whose `launch` method implements the 
+    functionality to remove candidates from specified tiles. 
+    Correspondingly, this method should be invoked by the 'regular' 
+    solving-method objects, i.e., by instances of classes that inherit from 
+    `FmtSolvingMethod`.
+
+    Moreover, the removal process also triggers the clean up methods
+    `_single_occurrence_of_option` and `_remove_option_from_neighbors` which
+    implement further candidate removal steps that are directly implied by the
+    initial removal.
+    """
+
+    def _single_occurrence_of_option(self, S: Sudoku, tile_index: int, remove_options: set):
+        """
+        There is the possibility that one of the `remove_options` we removed 
+        from the tile at `tile_index` has been shared with a single other tile
+        that lives, e.g., in the same row. Hence, after the removal, this latter
+        tile is the only one in the row that still exhibits the concerned 
+        candidate such that its value can immediately be fixed
+        """
+        
         tile = S.tiles[tile_index]
         for kind in CONTAINER_TYPES:
-            counter = S.counters[kind][tile.pos[kind]]
+            occurrence = S.occurrences[kind][tile.pos[kind]]
             for o in remove_options:
-                if len(counter[o-1]) == 1:
-                    where_only_one_left = list(counter[o-1])[0]
+                if len(occurrence[o-1]) == 1:
+                    where_only_one_left = list(occurrence[o-1])[0]
                     remove_opts = deepcopy(S.tiles[where_only_one_left].options)-{o}
 
                     self._stepper.set_consideration(
@@ -132,6 +215,13 @@ class RemoveAndUpdate(FmtSolvingBase):
         return True
 
     def _remove_option_from_neighbors(self, S: Sudoku, tile_index: int):
+        """
+        After having removed the specified candidates from the tile at 
+        `tile_index`, the concerned tile may have only one candidate left, i.e.
+        its value is fixed by the previous removal. Therefore, its value must
+        not be considered a candidate of any neighboring tile anymore.
+        """
+
         tile = S.tiles[tile_index]
         for kind in CONTAINER_TYPES:
             container = S.containers[kind][tile.pos[kind]]
@@ -151,39 +241,61 @@ class RemoveAndUpdate(FmtSolvingBase):
         return True
 
     def _update_chain_removal(self, S: Sudoku, tile_index: int, remove_options: set):
+        """
+        Intermediate method, to invoke the clean up methods after the removal
+        of the `remove_options` from the tile at `tile_index`.
+        """
+
         tile = S.tiles[tile_index]
-        if not self._one_tile_with_option_left(S, tile_index, remove_options):
+        if not self._single_occurrence_of_option(S, tile_index, remove_options):
             return False
 
         if tile.n_options == 1:
-            tile.solved_at = self._stepper._counter
+            tile.solved_at = self._stepper.counter
             if not self._remove_option_from_neighbors(S, tile_index):
                 return False
 
         return True
 
 
-    def _update_counter(self, S: Sudoku, tile_index: int, remove_options: set):
+    def _update_occurrences(self, S: Sudoku, tile_index: int, remove_options: set):
+        """
+        After removing `remove_options` from the tile at `tile_index`, we need
+        to make sure that this `tile_index` is no longer registered as a
+        position at which any of the candidates in `remove_options` occur.
+        """
+
         tile = S.tiles[tile_index]
         for kind in CONTAINER_TYPES:
-            counter = S.counters[kind][tile.pos[kind]]
+            occurrence = S.occurrences[kind][tile.pos[kind]]
             for o in remove_options:
-                counter[o-1] -= {tile_index}
-                if len(counter[o-1]) == 0:
+                occurrence[o-1] -= {tile_index}
+                if len(occurrence[o-1]) == 0:
                     S.violated = True
                     return False
         
         return True
     
     def _update_and_check_violations(self, S: Sudoku, tile_index: int, remove_options: set):
+        """
+        Invoke the process to update the lists that register at which positions
+        which candidates occur and check if Sudoku rules are violated by 
+        verifying that the manipulated tile at `tile_index` still has more than
+        zero candidates left.
+        """
+
         if S.tiles[tile_index].n_options > 0:
-            if self._update_counter(S, tile_index, remove_options):
+            if self._update_occurrences(S, tile_index, remove_options):
                 return True
         
         S.violated = True
         return False
 
     def _remove_and_check_violations(self, S: Sudoku, where: int, which: set) -> bool:
+        """
+        Remove the candidates `which` from the tile at `where`.
+        """
+
         self._stepper.show_step(S, {where}, which)
         S.tiles[where].options -= which
         return self._update_and_check_violations(S, where, which)
@@ -201,6 +313,14 @@ class RemoveAndUpdate(FmtSolvingBase):
 
 
 class NTilesNOptions(FmtParamSolvingMethod):
+    """
+    A solving method that checks if a set of the same `n` options is found `n`
+    times in the same row, column or square. If, e.g., the set of candidate
+    options `{1,2}` is found twice in the same row, i.e., if two separate tiles
+    have the exact same two candidates left, no other tile in the same row may
+    take any of the latter two values.
+    """
+
     _N_MIN = 1
 
     def _get_solving_message(self, n: int, kind: str, c_index: int, matches: set, shared_options: set):
@@ -271,14 +391,24 @@ class NTilesNOptions(FmtParamSolvingMethod):
                 return self._fall_back.launch(S)
 
 class ScaledXWing(FmtParamSolvingMethod):
+    """
+    Solving methods that searches for candidate options appearing in an 
+    `n` x `n` square. 
+    
+    Consider, e.g., two columns in which the same candidate occurs at exactly 
+    two positions. Now, let the rows in which these occurrences are to be the same 
+    for both columns. Then non of the remaining tiles within the latter tow rows 
+    can take this candidate as value anymore as its position is already fixed to
+    a place in either of the tow columns we considered initially.
+    """
     _N_MIN = 2
 
     def _find_option_in_n_by_n(self, S: Sudoku, n: int, primary_kind: str, option: int):
         primary_kind_tiles = []
         secondary_kind, = {"r", "c"}-{primary_kind}
         secondary_to_consider = []
-        for counter in S.counters[primary_kind]:
-            if len(tile_idxs:=counter[option-1]) == n:
+        for occurrence in S.occurrences[primary_kind]:
+            if len(tile_idxs:=occurrence[option-1]) == n:
                 primary_kind_tiles.append(tile_idxs)
                 secondary_pos = {S.tiles[idx].pos[secondary_kind] for idx in tile_idxs}
                 secondary_to_consider.append(secondary_pos)
@@ -295,8 +425,8 @@ class ScaledXWing(FmtParamSolvingMethod):
    
             for tidx in primary_kind_tiles[0]:
                 tile = S.tiles[tidx]
-                secondary_kind_counter = S.counters[secondary_kind][tile.pos[secondary_kind]]
-                secondary_kind_tiles = secondary_kind_counter[option-1]
+                secondary_kind_occurrence = S.occurrences[secondary_kind][tile.pos[secondary_kind]]
+                secondary_kind_tiles = secondary_kind_occurrence[option-1]
                 throw_away |= (secondary_kind_tiles - found_tiles)
             
             if len(throw_away) > 0:
@@ -328,7 +458,6 @@ class ScaledXWing(FmtParamSolvingMethod):
 
                     if self._option_in_n_by_n_removal(S, self._n, direction, option):
                         success = True
-                        # return self._advance.launch(S)
         
             if success:
                 return self._advance.launch(S)
@@ -336,6 +465,23 @@ class ScaledXWing(FmtParamSolvingMethod):
                 return self._fall_back.launch(S)
 
 class YWing(FmtSolvingMethod):
+    """
+    Implementation of the *classical* 'Y-Wing' strategy.
+
+    This methods first searches for an 'anchor' tile, i.e., a tile with two
+    candidates left, say `{1,2}`. From this tile on, the neighboring row, column
+    and square are searched for further 'two-candidate' tiles. The aim, thereby,
+    is to find two more tiles, one of them including `1` and the other `2` as 
+    candidate. Most importantly these two tiles must also have one common candidate,
+    say `3`, such that we end up with two 'node' tiles related to the anchor,
+    having candidates `{1,3}` and `{2,3}`. No matter what configuration 
+    eventually solves the puzzle, one of the node tiles must be
+    assigned the value `3` as fixing the value of one node immediately fixes
+    the value of the other node via the anchor tile. Consequently, `3` can 
+    be excluded as candidate from any tile that is simultaneously related to 
+    both nodes.
+    """
+
     def _get_node_candidates(self, S: Sudoku, anchor: Tile):
         candidates = set()
         for kind in CONTAINER_TYPES:
@@ -345,7 +491,6 @@ class YWing(FmtSolvingMethod):
                     candidates.add(tidx)
 
         candidates = list(candidates)
-        # print(f"found canditates with options: {[c.options for c in candidates]} anchor has {anchor.options}")
         return candidates
     
     def _eliminate_candidates(self, S: Sudoku, anchor: Tile, candidates: List[int]) -> List[Tuple[int, int]]:
@@ -420,11 +565,22 @@ class YWing(FmtSolvingMethod):
                 return self._fall_back.launch(S)
 
 class Bifurcation(FmtSolvingMethod):
+    """
+    The uninspired emergency solving method.
+
+    After failure of the previous algorithms, we may still fall back to a trial
+    and error approach by considering tiles with two candidates left and by
+    mindlessly picking one of them as the tiles value. From there on, we can 
+    continue solving the puzzle with the 'more analytic' methods until we 
+    either solve to puzzle or run into a violation of the Sudoku rules. Since
+    we only apply this approach to 'two-candidate' tiles, a failure of the try
+    still immediately fixes the definitive value of the considered tile.
+    """
+
     def launch(self, S: Sudoku):
         for tile_index in range(81):
             tile = S.tiles[tile_index]
             if tile.n_options == 2:
-                # logging.info(f"initiate bifurcation...")
 
                 opts = deepcopy(tile.options)
                 

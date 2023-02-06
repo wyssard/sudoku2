@@ -44,10 +44,10 @@ class Sudoku:
 
         self.tiles: List[Tile] = []
         self.containers: Dict[str, List[List[int]]] = {}
-        self.counters: Dict[str, List[List[Set[int]]]] = {}
+        self.occurrences: Dict[str, List[List[Set[int]]]] = {}
 
         for kind in CONTAINER_TYPES:
-            self.counters[kind] = [[set() for _ in range(9)] for _ in range(9)]
+            self.occurrences[kind] = [[set() for _ in range(9)] for _ in range(9)]
             self.containers[kind] = [[] for _ in range(9)]
 
         given_tiles = []
@@ -60,21 +60,21 @@ class Sudoku:
             for kind in CONTAINER_TYPES:
                 self.containers[kind][tile.pos[kind]].append(tile_index)
 
-                counter = self.counters[kind][tile.pos[kind]]
+                occurrence = self.occurrences[kind][tile.pos[kind]]
                 for o in tile.options:
-                    counter[o-1].add(tile_index)
+                    occurrence[o-1].add(tile_index)
                 
             self.tiles.append(tile)
 
         for tile_index in given_tiles:
             tile = self.tiles[tile_index]
 
-            # option 'o' has counter position 'o-1'
-            option_counter_pos = list(tile.options)[0]-1
+            # option 'o' has occurrence position 'o-1'
+            option_occurrence_pos = list(tile.options)[0]-1
 
             for kind in CONTAINER_TYPES:
-                counter = self.counters[kind][tile.pos[kind]]
-                counter[option_counter_pos] = {tile_index}
+                occurrence = self.occurrences[kind][tile.pos[kind]]
+                occurrence[option_occurrence_pos] = {tile_index}
 
     @property
     def max_options(self) -> int:
