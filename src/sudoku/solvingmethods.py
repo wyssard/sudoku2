@@ -1,7 +1,28 @@
+"""
+Core module of the solver, providing the structure of the different solving
+algorithms by means of the base classes `FmtSolvingBase` and 
+`FmtSolvingMethod`. These classes work as templates for the integration
+of the specific solving algorithms through their child classes but also provide 
+the abstract interface to access these algorithms. 
+
+Use this module to integrate your own solving algorithms to this solver or to
+access the four default solving methods: `NTilesNOptions`, `ScaledXWing`, 
+`YWing` and `Bifurcation`.
+
+Moreover, this file also provides the device required to remove candidates from 
+Sudoku tiles. Observe that the implemented algorithms are not able to solve the 
+puzzle on their own but depend on a prescription of what algorithm to use in the 
+specific state of the puzzle. This logic is implemented by means of any 
+solving-method class having attributes that link to other solving-method classes
+which are to be used depending on the success or failure of the present solving 
+algorithm. The linking of the solving methods is done via the `generate_solver` 
+function found in `solver.py`
+"""
+
 from __future__ import annotations
 
 from .structure import Sudoku, Tile, CONTAINER_TYPES
-from .stepping import StepperBase
+from .stepping import StepperBase, DeadStepper
 from .formatting import CONTAINER_NAMES
 
 from abc import abstractmethod
@@ -16,35 +37,12 @@ class SolverError(RuntimeError):
     def __init__(self) -> None:
         super().__init__("could not solve puzzle with the solving methods given")
 
-class StepperMissingError(NotImplementedError):
-    """
-    No stepper has been assigned to the solving method. 
-    """
-    def __init__(self, method: str) -> None:
-        super().__init__(f"no stepper has been set for solving method {method}")
-
 class RemoverMissingError(NotImplementedError):
     """
     No remover has been assigned to the solving method.
     """
     def __init__(self, method: str) -> None:
         super().__init__(f"no remover has been set for solving method {method}")
-
-class _DeadStepper(StepperBase):
-    """
-    Trivial 'stepper' class serving as default value for any variable whose
-    value must be of type `StepperBase`. That is, if no proper 'stepper' is
-    assigned, this placeholder will raise an error whenever the user tries to 
-    make use of the abstract methods that any stepper needs to implement.
-    """
-    def __init__(self, name: str) -> None:
-        self._name = name
-
-    def set_consideration(self, *args):
-        raise StepperMissingError(self._name)
-
-    def show_step(self, *args):
-        raise StepperMissingError(self._name)
 
 
 class FmtSolvingBase:
@@ -61,7 +59,7 @@ class FmtSolvingBase:
     """
 
     def __init__(self, stepper: StepperBase = None) -> None:
-        self._stepper = stepper if stepper else _DeadStepper(self.__class__.__name__)
+        self._stepper = stepper if stepper else DeadStepper(self.__class__.__name__)
 
     def set_stepper(self, stepper: StepperBase):
         self._stepper = stepper
@@ -225,15 +223,15 @@ class RemoveAndUpdate(FmtSolvingBase):
         tile = S.tiles[tile_index]
         for kind in CONTAINER_TYPES:
             container = S.containers[kind][tile.pos[kind]]
-            for tidx in set(container)-{tile_index}:
+            for t_idx in set(container)-{tile_index}:
                 
                 self._stepper.set_consideration(
                     {tile_index},
                     tile.options,
-                    f"value of tile {tile_index} has been fixed to {tile.options}, thus removing this option from tile {tidx}",
+                    f"value of tile {tile_index} has been fixed to {tile.options}, thus removing this option from tile {t_idx}",
                     False)
 
-                self.launch(S, tidx, tile.options)
+                self.launch(S, t_idx, tile.options)
                 
                 if S.violated:
                     return False
@@ -403,17 +401,17 @@ class ScaledXWing(FmtParamSolvingMethod):
     """
     _N_MIN = 2
 
-    def _find_option_in_n_by_n(self, S: Sudoku, n: int, primary_kind: str, option: int):
-        primary_kind_tiles = []
+    def _find_option_in_n_by_n(self, S: Sudoku, n: int, primary_kind: str, option: int) -> List[Set[int]]:
+        primary_kind_tiles: List[Set[int]] = []
         secondary_kind, = {"r", "c"}-{primary_kind}
-        secondary_to_consider = []
+        secondary_to_consider: List[Set[int]] = []
         for occurrence in S.occurrences[primary_kind]:
             if len(tile_idxs:=occurrence[option-1]) == n:
                 primary_kind_tiles.append(tile_idxs)
                 secondary_pos = {S.tiles[idx].pos[secondary_kind] for idx in tile_idxs}
                 secondary_to_consider.append(secondary_pos)
                 if secondary_to_consider.count(secondary_pos) == n:
-                    return [primary_kind_tiles[i] for i, scpos in enumerate(secondary_to_consider) if scpos==secondary_pos]
+                    return [primary_kind_tiles[i] for i, sc_pos in enumerate(secondary_to_consider) if sc_pos==secondary_pos]
 
         return None
         
@@ -423,21 +421,21 @@ class ScaledXWing(FmtParamSolvingMethod):
         if (primary_kind_tiles:=self._find_option_in_n_by_n(S, n, primary_kind, option)):
             found_tiles = {idx for idxs in primary_kind_tiles for idx in idxs}
    
-            for tidx in primary_kind_tiles[0]:
-                tile = S.tiles[tidx]
+            for t_idx in primary_kind_tiles[0]:
+                tile = S.tiles[t_idx]
                 secondary_kind_occurrence = S.occurrences[secondary_kind][tile.pos[secondary_kind]]
                 secondary_kind_tiles = secondary_kind_occurrence[option-1]
                 throw_away |= (secondary_kind_tiles - found_tiles)
             
             if len(throw_away) > 0:
-                for tidx in throw_away:
+                for t_idx in throw_away:
                     self._stepper.set_consideration(
                         found_tiles,
                         {option},
-                        f"found option {option} in {n}x{n} square at {found_tiles}, thus removing {option} from {tidx}",
+                        f"found option {option} in {n}x{n} square at {found_tiles}, thus removing {option} from {t_idx}",
                         True)
 
-                    self._remove.launch(S, tidx, {option})
+                    self._remove.launch(S, t_idx, {option})
                     if S.violated:
                         return False
 
@@ -485,10 +483,10 @@ class YWing(FmtSolvingMethod):
     def _get_node_candidates(self, S: Sudoku, anchor: Tile):
         candidates = set()
         for kind in CONTAINER_TYPES:
-            for tidx in S.containers[kind][anchor.pos[kind]]:
-                tile = S.tiles[tidx]
+            for t_idx in S.containers[kind][anchor.pos[kind]]:
+                tile = S.tiles[t_idx]
                 if (tile.n_options==2) and (len(tile.options&anchor.options) == 1):
-                    candidates.add(tidx)
+                    candidates.add(t_idx)
 
         candidates = list(candidates)
         return candidates

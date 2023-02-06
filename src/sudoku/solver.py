@@ -66,14 +66,14 @@ def solve(sudoku: Sudoku, formatting: str, stepping: str, flush: bool = False) -
     return s
 
 def load(path: Path) -> Sudoku:
-    with open(path) as csvfile:
-        rows = reader(csvfile, skipinitialspace=True)
+    with open(path) as csv_file:
+        rows = reader(csv_file, skipinitialspace=True)
         content = [(int(elt) if elt else 0) for row in rows for elt in row]
 
     sudoku = Sudoku(content)
     return sudoku
 
 def save(sudoku: Sudoku, path: Path):
-    with open(path, "w", newline="") as csvfile:
-        writer(csvfile).writerows(sudoku.get_solved())
+    with open(path, "w", newline="") as csv_file:
+        writer(csv_file).writerows(sudoku.get_solved())
     
