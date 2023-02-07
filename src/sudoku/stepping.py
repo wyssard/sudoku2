@@ -120,8 +120,8 @@ class Skipper(StepperBase):
     Trivial stepper class that only counts the solving steps without invoking
     any rendering or interrupting the solving process.
     """
-    def __init__(self, formatter: BlankFormatter = None, trigger: StepTrigger = None) -> None:
-        self._fmt = formatter if formatter else DeadFormatter()
+    def __init__(self, formatter: BlankFormatter = DeadFormatter()) -> None:
+        self._fmt = formatter
 
 class AnyStep(StepperBase):
     """

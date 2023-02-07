@@ -1,3 +1,7 @@
+"""
+This module provides the base class for `Formatter` objects.
+"""
+
 from __future__ import annotations
 
 from abc import abstractmethod

@@ -5,10 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sudoku"
 version = "0.0.1"
-description = "an unserious little library to create sudoku-solvers"
+description = "an little library to create sudoku-solvers"
 requires-python = ">=3.10"
 keywords = ["sudoku"]
 classifiers = ["Programming Language :: Python :: 3"]
+author = "Valentin Wyss"
 
 
 [tool.setuptools]
