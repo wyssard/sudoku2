@@ -43,19 +43,6 @@ class StepTrigger:
         """
         pass
 
-class ConsoleTrigger(StepTrigger):
-    """
-    Trigger that requires the user to press 'enter' to show the next solving
-    step.
-    """
-    def trigger_next_step(self) -> None:
-        answering = True
-        while answering:
-            if not input("next step: (press ENTER)"):
-                answering = False
-            else:
-                print("JUST HIT ENTER!")
-
 class DeadTrigger(StepTrigger):
     """
     Trivial trigger to raise an error when called. Such objects serve as 

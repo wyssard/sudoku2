@@ -1,6 +1,6 @@
 from sudoku import load, generate_solver, Sudoku
-from sudoku.stepping import InterestingStep, Skipper, ConsoleTrigger
-from sudoku.formatting import ConsoleFormatter
+from sudoku.stepping import InterestingStep, Skipper
+from sudoku.consolesolver import ConsoleTrigger, ConsoleFormatter
 from sudoku.solvingmethods import NTilesNOptions, ScaledXWing, YWing, Bifurcation
 
 from time import perf_counter

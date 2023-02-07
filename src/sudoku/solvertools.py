@@ -1,24 +1,16 @@
+"""
+Module providing the core tools to build and interact with a Sudoku solver.
+"""
+
 from __future__ import annotations
 
 from .structure import Sudoku
-from .formatting import ConsoleFormatter
-from .stepping import StepperBase, Skipper, AnyStep, InterestingStep, ConsoleTrigger
-from .solvingmethods import FmtSolvingMethod, RemoveAndUpdate, NTilesNOptions, ScaledXWing, YWing, Bifurcation
+from .stepping import StepperBase
+from .solvingmethods import FmtSolvingMethod, RemoveAndUpdate, NTilesNOptions
 
 from csv import reader, writer
 from pathlib import Path
-from typing import Tuple, List, Dict, Type
-
-
-_FORMATTERS = {
-    "console": ConsoleFormatter
-}
-
-_STEPPERS: Dict[str, Type[StepperBase]] = {
-    "any": AnyStep,
-    "skip": Skipper,
-    "interesting": InterestingStep
-}
+from typing import Tuple, List
 
 
 def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase):
@@ -52,32 +44,6 @@ def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase)
     
     return init_run
      
-def _create_solver(stepper: StepperBase) -> FmtSolvingMethod:
-    return generate_solver(
-        [
-            ScaledXWing(2), 
-            YWing(), 
-            NTilesNOptions(2), 
-            ScaledXWing(3), 
-            Bifurcation()
-        ], stepper)
-
-
-def solve(sudoku: Sudoku, formatting: str, stepping: str, flush: bool = False) -> Sudoku:
-    """
-    Solve a Sudoku given as `Sudoku` object (possibly obtained by the `load`
-    function). Currently, the `formatting` parameter only takes 'console' as 
-    possible value. You can choose between the steppers 'any', to render every
-    solving step, 'skip' to completely suppress rendering, or 'interesting' to
-    only print more elaborate solving methods. Use the `flush` parameter to 
-    erase the rendered output of the previous solving step before continuing.
-    """
-    stepper = _STEPPERS[stepping](_FORMATTERS[formatting](flush=flush), ConsoleTrigger())
-    solver = _create_solver(stepper)
-    s = solver.launch(sudoku)
-    stepper.show(s)
-    return s
-
 def load(path: Path) -> Sudoku:
     """
     Load a Sudoku puzzle stored as `csv` file at `path` and build a `Sudoku`

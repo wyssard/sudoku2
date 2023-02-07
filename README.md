@@ -25,6 +25,8 @@ $ pip install /sudoku2/
 
 ### Default Solver
 
+> **Warning**: The following section is deprecated and must be updated to the new solver layout.
+
 Access the default solver by importing the `load`, `solve` and `save` functions from `sudoku`:
 
 ```python
