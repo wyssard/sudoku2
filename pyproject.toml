@@ -9,7 +9,7 @@ description = "an little library to create sudoku-solvers"
 requires-python = ">=3.10"
 keywords = ["sudoku"]
 classifiers = ["Programming Language :: Python :: 3"]
-author = "Valentin Wyss"
+authors = [{name = "Valentin Wyss", email="valentin.wyss@bluewin.ch"}]
 
 
 [tool.setuptools]

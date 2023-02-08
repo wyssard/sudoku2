@@ -77,4 +77,4 @@ An example that makes use of this function to customize the solver can be found 
 
 ![solved.png](img/solved.png)
 
-Again, an in-dept picture of the API to create a custom solver with custom frontend is provided by the respective [documentation](docs/custom_solver.md).
+Again, an in-depth picture of the API to create a custom solver with custom frontend is provided by the respective [documentation](docs/custom_solver.md).

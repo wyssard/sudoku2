@@ -203,7 +203,7 @@ class RemoveAndUpdate(FmtSolvingBase):
             occurrence = S.occurrences[kind][tile.pos[kind]]
             for o in remove_options:
                 if len(occurrence[o-1]) == 1:
-                    where_only_one_left = list(occurrence[o-1])[0]
+                    where_only_one_left: int = list(occurrence[o-1])[0]
                     remove_opts = deepcopy(S.tiles[where_only_one_left].options)-{o}
 
                     self._stepper.set_consideration(

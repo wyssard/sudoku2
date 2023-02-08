@@ -59,15 +59,14 @@ class StepperBase:
     solution-step counting mechanism and the interface to pass information about
     the current state of the puzzle through the stepper to the frontend.
     """
-
-    counter = 0
-
     def __init__(self, formatter: BlankFormatter = None, trigger: StepTrigger = None) -> None:
         """
         Create a stepper instance by passing a formatting function, i.e. a
         function to render the puzzle with additional information about the
         solving process
         """
+        self.counter = 0
+        self.previously_involved = set(range(0,81))
         self._fmt = formatter if formatter else DeadFormatter()
         self._trg = trigger if trigger else DeadTrigger()
     
@@ -82,6 +81,7 @@ class StepperBase:
     def _increase(self):
         self.counter += 1
 
+
     @abstractmethod
     def show_step(self, *args):
         """
@@ -93,10 +93,10 @@ class StepperBase:
 
     def show(self, sudoku: Sudoku):
         """
-        Use the selected formatter to render the Sudoku without any informationSS
+        Use the selected formatter to render the Sudoku without any information
         about the solving process.
         """
-        self._fmt.render(sudoku, set(), set(), set(), set(), self.counter,
+        self._fmt.render(sudoku, set(), set(), set(), set(), set(), self.counter,
             "puzzle solved")
 
 class DeadStepper(StepperBase):
@@ -120,8 +120,9 @@ class Skipper(StepperBase):
     Trivial stepper class that only counts the solving steps without invoking
     any rendering or interrupting the solving process.
     """
-    def __init__(self, formatter: BlankFormatter = DeadFormatter()) -> None:
-        self._fmt = formatter
+    def __init__(self, formatter: BlankFormatter = None, trigger: StepTrigger = None) -> None:
+        super().__init__(formatter, trigger)
+    
 
 class AnyStep(StepperBase):
     """
@@ -142,18 +143,23 @@ class AnyStep(StepperBase):
         self.solving_message = message
         self.interesting = interesting
 
+    def _update(self, affected: set):
+        self._increase()
+        self.previously_involved |= (affected|self.considered_tiles)
         
     def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
-        self._increase()
+        self._update(affected_tiles)
         self._fmt.render(
             sudoku, 
             self.considered_tiles, 
             self.considered_options, 
             affected_tiles, 
             affected_options,
+            self.previously_involved,
             self.counter,
             self.solving_message)
         self._trg.trigger_next_step()
+        self.previously_involved=affected_tiles|self.considered_tiles
 
 class InterestingStep(AnyStep):
     """
@@ -165,4 +171,4 @@ class InterestingStep(AnyStep):
         if self.interesting:
             return super().show_step(sudoku, affected_tiles, affected_options)
         else:
-            self._increase()
+            self._update(affected_tiles)

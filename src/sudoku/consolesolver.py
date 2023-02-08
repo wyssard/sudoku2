@@ -96,7 +96,7 @@ class ConsoleFormatter(BlankFormatter):
         row_strs += self._get_row_delimiter(ll_angle, d_t, rl_angle, square_width, h_line_char)
         return row_strs
 
-    def render(self, sudoku: Sudoku, considered_tiles: set, considered_options: set, affected_tiles: set, affected_options: set, solving_step: int, solving_message: str):
+    def render(self, sudoku: Sudoku, considered_tiles: set, considered_options: set, affected_tiles: set, affected_options: set, previously_involved: set, solving_step: int, solving_message: str):
         if self.flush:
             print("\033[H\033[J", end="")
             

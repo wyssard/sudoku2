@@ -34,6 +34,7 @@ class BlankFormatter:
         considered_options: set, 
         affected_tiles: set,
         affected_options: set, 
+        previously_involved: set,
         solving_step: int, 
         solving_message: str):
         """
