@@ -27,20 +27,29 @@ class BlankFormatter:
     Formatters implement the `render` method called by any stepper to print the
     progress of the solver to the screen by any means.
     """
+    def _get_defaults(self, considered_tiles, considered_options, affected_tiles, affected_options):
+        return {
+            "considered_tiles": considered_tiles if considered_tiles else set(),
+            "considered_options": considered_options if considered_options else set(),
+            "affected_tiles": affected_tiles if affected_tiles else set(),
+            "affected_options": affected_options if affected_options else set()
+        }
+
     @abstractmethod
     def render(self, 
         sudoku: Sudoku, 
-        considered_tiles: set, 
-        considered_options: set, 
-        affected_tiles: set,
-        affected_options: set, 
-        previously_involved: set,
-        solving_step: int, 
-        solving_message: str):
+        considered_tiles=None, 
+        considered_options=None, 
+        affected_tiles=None,
+        affected_options=None, 
+        solving_step: int = 0, 
+        solving_message: str = None):
         """
         Print the Sudoku to the screen by the mean of your desire
         """
-        pass
+        return self._get_defaults(
+            considered_tiles, considered_options,
+            affected_tiles, affected_options)
 
 class DeadFormatter(BlankFormatter):
     """

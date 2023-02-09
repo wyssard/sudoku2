@@ -2,15 +2,15 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.animation import ArtistAnimation
 from matplotlib.text import Text
+from matplotlib.figure import Figure
 from typing import List
-from copy import deepcopy
 
 from sudoku.structure import Sudoku, index_to_pos
 from sudoku.formatting import BlankFormatter
 from sudoku.consolesolver import ConsoleTrigger
 from sudoku.solvertools import generate_solver, load
 from sudoku.solvingmethods import ScaledXWing, Bifurcation
-from sudoku.stepping import InterestingStep, AnyStep, StepTrigger
+from sudoku.stepping import InterestingStep, AnyStep, NoTrigger
 
         
 class mplFormatter(BlankFormatter):
@@ -36,8 +36,8 @@ class mplFormatter(BlankFormatter):
         
         self.text_artists: List[List[Text]] = [[] for _ in range(81)]
 
-    def _clear_text(self, positions: set):
-        for p in positions:
+    def _clear_text(self):
+        for p in range(81):
             for t in self.text_artists[p]:
                 t.remove()
             self.text_artists[p] = []
@@ -61,10 +61,10 @@ class mplFormatter(BlankFormatter):
             color=self._color_option(o, considered, affected),
             horizontalalignment="center", verticalalignment="center")
 
-    def _place_and_highlight(self, append_to: List, row: int, col: int, options: set, considered_options: set, affected_options: set) -> None:        
+    def _place_and_highlight(self, text_target: list, row: int, col: int, options: set, considered_options: set, affected_options: set) -> None:        
         if len(options) == 1:
             o = list(options)[0]
-            append_to.append(self._build_text(
+            text_target.append(self._build_text(
                 col, row, o, considered_options, affected_options, 18))
 
         else:
@@ -73,7 +73,7 @@ class mplFormatter(BlankFormatter):
                 for i, o in enumerate(o_row):
                     y = row+(i-1)*self.OFFSET
 
-                    append_to.append(
+                    text_target.append(
                         self._build_text(
                             x, y, o, considered_options, affected_options, 7))
 
@@ -81,39 +81,42 @@ class mplFormatter(BlankFormatter):
             self.colors[row, col] = 0.1
         else:
             self.colors[row, col] = 0.2
+    
+    def _is_tile_concerned(self, idx, considered_tiles, considered_options, affected_tiles, affected_options) -> dict:
+        return {
+            "considered_options": considered_options if idx in considered_tiles else set(),
+            "affected_options": affected_options if idx in affected_tiles else set()
+        }
+
+    def render(self, sudoku: Sudoku, considered_tiles=None, considered_options=None, affected_tiles=None, affected_options=None, solving_step: int = 0, solving_message: str = None):
+        defaults = super().render(sudoku, considered_tiles, considered_options, affected_tiles, affected_options, solving_step, solving_message)
+        print(f"solving step {solving_step}: {solving_message}")
+        print(f"status: {'violated' if sudoku.violated else 'ok'}")
         
-    def prepare_data(self, sudoku: Sudoku, considered_tiles: set, considered_options: set, affected_tiles: set, affected_options: set, previously_involved: set):
-        previously_involved = set(range(81))
         options = sudoku.get_options()
-        self._clear_text(previously_involved)
-        for t_idx in previously_involved:
+        self._clear_text()
+        for t_idx in range(81):
             rcs_idx = index_to_pos(t_idx)
             row = rcs_idx["r"]
             col = rcs_idx["c"]
             self._place_and_highlight(
                 self.text_artists[t_idx], row, col, 
                 options[row][col], 
-                considered_options if t_idx in considered_tiles else set(),
-                affected_options if t_idx in affected_tiles else set())
+                **self._is_tile_concerned(t_idx, **defaults))
         
         self.img.set_data(self.colors)
-        return self.fig
+
+        self.fig.canvas.draw()
+        self.fig.canvas.flush_events()
         
-    def render(self, sudoku: Sudoku, considered_tiles: set, considered_options: set, affected_tiles: set, affected_options: set, previously_involved: set, solving_step=0, solving_message: str = None):
-        print(f"solving step {solving_step}: {solving_message}")
-        print(f"status: {'violated' if sudoku.violated else 'ok'}")
-        fig = self.prepare_data(sudoku, considered_tiles, considered_options, affected_tiles, affected_options, previously_involved)
-        fig.canvas.draw()
-        fig.canvas.flush_events()
-
-
 class mplAnimator(mplFormatter):
     def __init__(self) -> None:
         self._init_plot()
         self.imgs = []
         self.texts = []
-        
-    def prepare_data(self, sudoku: Sudoku, considered_tiles: set, considered_options: set, affected_tiles: set, affected_options: set, previously_involved: set):
+    
+    def render(self, sudoku: Sudoku, considered_tiles=None, considered_options=None, affected_tiles=None, affected_options=None, *args):
+        defaults = self._get_defaults(considered_tiles, considered_options, affected_tiles, affected_options)
         options = sudoku.get_options()
         self.texts = []
         for t_idx in range(81):
@@ -123,15 +126,10 @@ class mplAnimator(mplFormatter):
             self._place_and_highlight(
                 self.texts, row, col, 
                 options[row][col], 
-                considered_options if t_idx in considered_tiles else set(),
-                affected_options if t_idx in affected_tiles else set())
+                **self._is_tile_concerned(t_idx, **defaults))
         
         self.imgs.append([self.table_ax.imshow(self.colors, cmap="Greys", vmin=0, vmax=1)]+self.texts)
-        return self.fig
-
-    def render(self, sudoku: Sudoku, considered_tiles: set, considered_options: set, affected_tiles: set, affected_options: set, previously_involved: set, solving_step=0, solving_message: str = None):
-        self.prepare_data(sudoku, considered_tiles, considered_options, affected_tiles, affected_options, previously_involved)
-        
+  
     def animate(self):
         return ArtistAnimation(self.fig, self.imgs, interval=100)
 
@@ -142,10 +140,9 @@ def solve(sudoku: Sudoku):
     stepper = InterestingStep(formatter, ConsoleTrigger())
     solver = generate_solver([ScaledXWing(2), Bifurcation()], stepper)
     s = solver.launch(sudoku)
-    fig = formatter.prepare_data(s, set(), set(), set(), set(), set())
     
-    fig.canvas.draw()
     plt.ioff()
+    formatter.render(s)
     plt.show()
     
     return s
@@ -153,41 +150,16 @@ def solve(sudoku: Sudoku):
 def solving_animation(sudoku: Sudoku):
     formatter = mplAnimator()
     solver = generate_solver([ScaledXWing(2), Bifurcation()],
-        InterestingStep(formatter, StepTrigger()))
+        AnyStep(formatter, NoTrigger()))
     solver.launch(sudoku)
     anim = formatter.animate()
     anim.save("img/solve_anim_i.mp4")
 
+def launch_solve(path):
+    solve(load(path))
 
-
-class WNW:
-    def __init__(self) -> None:
-        self.fig = plt.figure()
-        self.ax = self.fig.add_subplot()
-        self.img = []
-        self.x = np.linspace(0, 5, 10)
-
-    def render(self, i):
-        self.y = np.sin(self.x-0.1*i)
-        self.y2 = np.cos(self.x-0.1*i)
-        t = self.ax.text(2.5, 0.25*i, "hello world")
-        p, = self.ax.plot(self.x, self.y)
-        p2, = self.ax.plot(self.x, self.y2)
-        self.img.append([p, p2, t])
-
-def why_not_work():
-    wnw = WNW()
-    for i in range(0,9):
-        wnw.render(i)
-    
-    anim = ArtistAnimation(wnw.fig, wnw.img)
-    anim.save("img/test.mp4")
-    
-
-
-def main():
-    solving_animation(load("examples/evil4.csv"))
+def launch_animate(path):
+    solving_animation(load(path))
 
 if __name__=="__main__":
-    main()
-    # why_not_work()
+    launch_solve("examples/mid.csv")

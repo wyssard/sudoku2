@@ -1,7 +1,4 @@
-from sudoku import load, generate_solver, Sudoku
-from sudoku.stepping import InterestingStep, Skipper
-from sudoku.consolesolver import ConsoleTrigger, ConsoleFormatter
-from sudoku.solvingmethods import NTilesNOptions, ScaledXWing, YWing, Bifurcation
+from sudoku import load, generate_solver, Sudoku, Skipper, ConsoleFormatter, ConsoleTrigger, ScaledXWing, Bifurcation
 
 from time import perf_counter
 import numpy as np
@@ -9,14 +6,7 @@ from matplotlib import pyplot as plt
 
 def solve(s: Sudoku) -> Sudoku:
     stepper = Skipper(ConsoleFormatter(), ConsoleTrigger())
-    solver = generate_solver(
-        [
-            # NTilesNOptions(2),
-            # YWing(),
-            ScaledXWing(2),
-            # ScaledXWing(3),
-            Bifurcation()
-        ], stepper)
+    solver = generate_solver([ScaledXWing(2), Bifurcation()], stepper)
     t0 = perf_counter()
     s = solver.launch(s)
     dt = perf_counter()-t0
@@ -37,7 +27,6 @@ def produce_plot(dest: str, sudoku: Sudoku, time: float, steps: int):
     width = 6
     fig = plt.figure(figsize=(width, width*6/5), tight_layout=True)
 
-
     tab_ax = fig.add_subplot()
     tab_ax.axis("off")
     tab_ax.set_title("Sudoku Solved", loc="left", fontsize=25, fontweight="bold", pad=40)
@@ -57,17 +46,11 @@ def produce_plot(dest: str, sudoku: Sudoku, time: float, steps: int):
             fontsize=18, horizontalalignment="center", verticalalignment="center")
 
 
-    for ml in np.arange(0.5, 8.5):
-        tab_ax.axhline(ml, color="white")
-        tab_ax.axvline(ml, color="white")
-
-    line_params = {"color": "white", "linewidth": 3}
-    
-    tab_ax.axhline(2.5, **line_params)
-    tab_ax.axhline(5.5, **line_params)
-    tab_ax.axvline(2.5, **line_params)
-    tab_ax.axvline(5.5, **line_params)
-
+    for l in range(1,10):
+        lw = 1.5 if l%3 else 3
+        line_params = {"color": "white", "linewidth": lw}
+        tab_ax.axhline(l-0.5, **line_params)
+        tab_ax.axvline(l-0.5, **line_params)
 
     plt.savefig(dest)
     

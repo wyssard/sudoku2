@@ -9,12 +9,12 @@ from __future__ import annotations
 from typing import Set, Dict, Type
 
 from .structure import Sudoku
-from .stepping import StepTrigger, StepperBase, AnyStep, Skipper, InterestingStep
+from .stepping import NoTrigger, StepperBase, AnyStep, Skipper, InterestingStep
 from .formatting import BlankFormatter
 from .solvertools import generate_solver
 from .solvingmethods import FmtSolvingMethod, ScaledXWing, Bifurcation
 
-class ConsoleTrigger(StepTrigger):
+class ConsoleTrigger(NoTrigger):
     """
     Trigger that requires the user to press 'enter' to show the next solving
     step.
@@ -34,6 +34,18 @@ class ConsoleFormatter(BlankFormatter):
     solution steps are stringed together in the console or if the previous step
     is consecutively removed. 
     """
+    H_LINE_CHAR = u"\u2500"
+    V_LINE_CHAR = u"\u2502"
+    CROSS_CHAR = u"\u253c"
+    LU_ANGLE = u"\u256d"
+    LL_ANGLE = u"\u2570"
+    RU_ANGLE = u"\u256e"
+    RL_ANGLE = u"\u256f"
+    L_T = u"\u251c"
+    R_T = u"\u2524"
+    U_T = u"\u252c"
+    D_T = u"\u2534"
+
     def __init__(self, render_message=True, flush=False) -> None:
         self.flush = flush
         self.r_msg = render_message
@@ -60,22 +72,10 @@ class ConsoleFormatter(BlankFormatter):
         square_width = tile_width*3
         row_strs = ""
 
-        h_line_char = u"\u2500"
-        v_line_char = u"\u2502"
-        cross_char = u"\u253c"
-        lu_angle = u"\u256d"
-        ll_angle = u"\u2570"
-        ru_angle = u"\u256e"
-        rl_angle = u"\u256f"
-        l_t = u"\u251c"
-        r_t = u"\u2524"
-        u_t = u"\u252c"
-        d_t = u"\u2534"
-
-        row_strs += self._get_row_delimiter(lu_angle, u_t, ru_angle, square_width, h_line_char)
+        row_strs += self._get_row_delimiter(self.LU_ANGLE, self.U_T, self.RU_ANGLE, square_width, self.H_LINE_CHAR)
 
         for row in range(9):
-            col_strs = f"{v_line_char} "
+            col_strs = f"{self.V_LINE_CHAR} "
             for col in range(9):
                 tile_index = 9*row+col
                 tile = tiles[tile_index]
@@ -86,27 +86,24 @@ class ConsoleFormatter(BlankFormatter):
                 col_strs += f"{self._format_tile(tile.options, in_tile_considered, in_tile_affected)}{(tile_width-tile.n_options*2-1)*' '}"
                 
                 if (c:=col+1)%3==0 and c < 9:
-                    col_strs += f" {v_line_char} "
+                    col_strs += f" {self.V_LINE_CHAR} "
 
-            row_strs += f"{col_strs} {v_line_char}\n"
+            row_strs += f"{col_strs} {self.V_LINE_CHAR}\n"
 
             if (r:=row+1)%3==0 and r < 9:
-                row_strs += self._get_row_delimiter(l_t, cross_char, r_t, square_width, h_line_char)
+                row_strs += self._get_row_delimiter(self.L_T, self.CROSS_CHAR, self.R_T, square_width, self.H_LINE_CHAR)
 
-        row_strs += self._get_row_delimiter(ll_angle, d_t, rl_angle, square_width, h_line_char)
+        row_strs += self._get_row_delimiter(self.LL_ANGLE, self.D_T, self.RL_ANGLE, square_width, self.H_LINE_CHAR)
         return row_strs
 
-    def render(self, sudoku: Sudoku, considered_tiles: set, considered_options: set, affected_tiles: set, affected_options: set, previously_involved: set, solving_step: int, solving_message: str):
+    def render(self, sudoku: Sudoku, considered_tiles=None, considered_options=None, affected_tiles=None, affected_options=None, solving_step: int = 0, solving_message: str = None):
+        defaults = super().render(sudoku, considered_tiles, considered_options, affected_tiles, affected_options, solving_step, solving_message)
         if self.flush:
             print("\033[H\033[J", end="")
             
         print(f"solving step {solving_step}: {solving_message}")
         print(f"status: {'violated' if sudoku.violated else 'ok'}")
-        print(self._prepare_string(
-            sudoku,
-            considered_tiles, considered_options,
-            affected_tiles, affected_options))
-
+        print(self._prepare_string(sudoku, **defaults))
 
 
 _STEPPERS: Dict[str, Type[StepperBase]] = {

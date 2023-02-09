@@ -32,7 +32,7 @@ class StepperMissingError(NotImplementedError):
         super().__init__(f"no stepper has been set for solving method {method}")
 
 
-class StepTrigger:
+class NoTrigger:
     """
     Classes that implement the functionality to await any sort uf user input
     after the puzzle has been rendered.
@@ -43,10 +43,10 @@ class StepTrigger:
         """
         pass
 
-class DeadTrigger(StepTrigger):
+class DeadTrigger(NoTrigger):
     """
     Trivial trigger to raise an error when called. Such objects serve as 
-    default argument for variables that take an object of type `StepTrigger` as
+    default argument for variables that take an object of type `NoTrigger` as
     value.
     """
     def trigger_next_step(self):
@@ -59,14 +59,13 @@ class StepperBase:
     solution-step counting mechanism and the interface to pass information about
     the current state of the puzzle through the stepper to the frontend.
     """
-    def __init__(self, formatter: BlankFormatter = None, trigger: StepTrigger = None) -> None:
+    def __init__(self, formatter: BlankFormatter = None, trigger: NoTrigger = None) -> None:
         """
         Create a stepper instance by passing a formatting function, i.e. a
         function to render the puzzle with additional information about the
         solving process
         """
         self.counter = 0
-        self.previously_involved = set(range(0,81))
         self._fmt = formatter if formatter else DeadFormatter()
         self._trg = trigger if trigger else DeadTrigger()
     
@@ -80,7 +79,6 @@ class StepperBase:
     
     def _increase(self):
         self.counter += 1
-
 
     @abstractmethod
     def show_step(self, *args):
@@ -96,8 +94,8 @@ class StepperBase:
         Use the selected formatter to render the Sudoku without any information
         about the solving process.
         """
-        self._fmt.render(sudoku, set(), set(), set(), set(), set(), self.counter,
-            "puzzle solved")
+        self._fmt.render(sudoku, 
+            solving_step=self.counter, solving_message="puzzle solved")
 
 class DeadStepper(StepperBase):
     """
@@ -120,10 +118,9 @@ class Skipper(StepperBase):
     Trivial stepper class that only counts the solving steps without invoking
     any rendering or interrupting the solving process.
     """
-    def __init__(self, formatter: BlankFormatter = None, trigger: StepTrigger = None) -> None:
+    def __init__(self, formatter: BlankFormatter = None, trigger: NoTrigger = None) -> None:
         super().__init__(formatter, trigger)
     
-
 class AnyStep(StepperBase):
     """
     Stepper class to transfer information about every elimination step to the
@@ -142,24 +139,19 @@ class AnyStep(StepperBase):
         self.considered_options = options
         self.solving_message = message
         self.interesting = interesting
-
-    def _update(self, affected: set):
-        self._increase()
-        self.previously_involved |= (affected|self.considered_tiles)
         
     def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
-        self._update(affected_tiles)
+        self._increase()
+
         self._fmt.render(
             sudoku, 
             self.considered_tiles, 
             self.considered_options, 
             affected_tiles, 
             affected_options,
-            self.previously_involved,
             self.counter,
             self.solving_message)
         self._trg.trigger_next_step()
-        self.previously_involved=affected_tiles|self.considered_tiles
 
 class InterestingStep(AnyStep):
     """
@@ -171,4 +163,4 @@ class InterestingStep(AnyStep):
         if self.interesting:
             return super().show_step(sudoku, affected_tiles, affected_options)
         else:
-            self._update(affected_tiles)
+            self._increase()
