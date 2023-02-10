@@ -8,7 +8,7 @@ A Sudoku solver-generator written in Python. Observe that speed is no priority o
 
 The program operates by excluding candidates from tiles by removing the values of neighboring tiles that have already been fixed but also by using more elaborate strategies such as X- and Y-Wing. Only if the solver gets stuck, a bifurcation method is applied to tiles with only two candidates left to minimize backtracking. 
 
-The puzzles to be solved are stored as `.csv` files. The blank tiles are thereby represented by the numerical value of `0`. Some example puzzles taken from [sudoku.com](https://www.sudoku.com) can be found in the [examples](/examples/) directory.
+The puzzles to be solved are stored as `.csv` files. The blank tiles are thereby represented by the numerical value of `0`. Some example puzzles taken from [sudoku.com](https://www.sudoku.com) can be found in the [puzzles](/puzzles/) directory.
 
 
 
@@ -33,7 +33,7 @@ Access the default solver by importing the `load`, `solve` and `save` functions 
 from sudoku import load, solve, save 
 ```
 
-This solver interacts with the user by means of a textual consol interface. Solve an example puzzle from the [example](/examples/) directory
+This solver interacts with the user by means of a textual consol interface. Solve an example puzzle from the [example](/puzzles/) directory
 
 ```python
 s = solve(load("/example/evil4.csv"), "interesting")
@@ -67,7 +67,7 @@ Save the solved puzzle as a `.csv` file using the `save` function
 save(s, "solved.csv")
 ```
 
-Refer to the [docs](/docs/custom_solver.md) to get an in-depth picture of the default solver.
+Refer to the [docs](/docs/standard_solvers.md) to get an in-depth picture of the default solver.
 
 ### Custom Solver
 
@@ -77,4 +77,4 @@ An example that makes use of this function to customize the solver can be found 
 
 ![solved.png](img/solved.png)
 
-Again, an in-depth picture of the API to create a custom solver with custom frontend is provided by the respective [documentation](docs/custom_solver.md).
+Again, an in-depth picture of the API to create a custom solver with custom frontend is provided by the [documentation](docs/index.md).

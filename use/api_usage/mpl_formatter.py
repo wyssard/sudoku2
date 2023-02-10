@@ -162,4 +162,4 @@ def launch_animate(path):
     solving_animation(load(path))
 
 if __name__=="__main__":
-    launch_solve("examples/mid.csv")
+    launch_solve("puzzles/mid.csv")

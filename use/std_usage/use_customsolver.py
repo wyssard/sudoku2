@@ -55,5 +55,5 @@ def produce_plot(dest: str, sudoku: Sudoku, time: float, steps: int):
     plt.savefig(dest)
     
 if __name__=="__main__":
-    solved = solve(load("examples/evil4.csv"))
+    solved = solve(load("puzzles/evil4.csv"))
     produce_plot("img/solved.png", **solved)
