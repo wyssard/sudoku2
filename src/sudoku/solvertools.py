@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Tuple, List
 
 
-def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase):
+def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase) -> FmtSolvingMethod:
     """
     Build a Sudoku solver by deciding in what order the solving methods (i.e.
     the instances of `FmtSolvingMethod` classes) are chained together. The 
@@ -22,6 +22,14 @@ def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase)
     of the n-th method, the solver will proceed by calling the 1st element of
     `method_order`. Moreover, any `StepperBase` object must be provided to guide
     the user through the solving process.
+
+    Args:
+        method_order: Solving Algorithm objects in their preferred order
+        stepper: the Stepping object used by the 
+
+    Returns:
+        The Solver
+
     """
 
     remover = RemoveAndUpdate(stepper)
@@ -48,6 +56,13 @@ def load(path: Path) -> Sudoku:
     """
     Load a Sudoku puzzle stored as `csv` file at `path` and build a `Sudoku`
     structure form the tow-dimensional grid.
+
+    Args:
+        path: the path to the `.csv` file
+    
+    Returns:
+        The Puzzle in its initial shape
+
     """
     with open(path) as csv_file:
         rows = reader(csv_file, skipinitialspace=True)
@@ -59,6 +74,11 @@ def load(path: Path) -> Sudoku:
 def save(sudoku: Sudoku, path: Path):
     """
     Write the solved `sudoku` puzzle to a `csv` file at `path`
+
+    Args:
+        sudoku: the puzzle to save
+        path: `.csv` file to write to
+
     """
     with open(path, "w", newline="") as csv_file:
         writer(csv_file).writerows(sudoku.get_solved())

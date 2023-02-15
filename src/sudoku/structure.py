@@ -16,13 +16,26 @@ def row_column_to_index(r: int, c: int) -> int:
     """
     Get the tile index, i.e. the position of the tile in an array of dimension
     `81`, by specifying the row `r` and the column `c`.
+
+    Args:
+        r: row index
+        c: column index
+
+    Returns:
+        tile index
     """
     return r*9+c
 
-def index_to_pos(t) -> Dict[str, int]:
+def index_to_pos(t: int) -> Dict[str, int]:
     """
     Get the row, column and square index from the tile index `t` formatted as 
     `{'r': *row index*, 'c': *column index*, 's': *square index*}`.
+
+    Args:
+        t: the tile index
+
+    Returns:
+        Dict containing row, column and square index
     """
     return {"r": (r:=t//9), "c": (c:=t%9), "s": 3*(r//3) + c//3}
 
@@ -47,13 +60,17 @@ class Tile:
         """
         Get the row, column and square index of the tile formatted as
         `{'r': *row index*, 'c': *column index*, 's': *square index*}`.
+
+        Returns:
+            The row, column and square index of the tile
         """
         return self._pos
 
     @property
     def options(self) -> set:
         """
-        Get the remaining candidate values for this tile.
+        Returns:
+            The remaining candidate values for this tile 
         """
         return self._options
 
@@ -119,21 +136,24 @@ class Sudoku:
     @property
     def max_options(self) -> int:
         """
-        Returns the maximum number of candidates over all the tiles.
+        Returns:
+            The maximum number of candidates over all the tiles
         """
         return max(tile.n_options for tile in self._tiles)
 
     @property
     def done(self) -> bool:
         """
-        Returns whether the puzzle has been solved.
+        Returns: 
+            Whether the puzzle is solved
         """
         return True if self.max_options==1 and not self.violated else False
 
     @property
     def tiles(self) -> List[Tile]:
         """
-        List of length 81 to store every tile of the Sudoku grid.
+        Returns:
+            List of length 81 to store every tile of the Sudoku grid.
         """
         return self._tiles
 
@@ -153,7 +173,7 @@ class Sudoku:
         Thereby, the subscript `['s'][0]` indicates the square at position 0.
 
         Returns:
-            the containers
+            The containers (as described above)
         """
         return self._containers
 
@@ -164,14 +184,18 @@ class Sudoku:
         dictionary stores at which `tiles` positions the respective value still 
         appears as candidate.
 
-        Example: Retrieve the set of array positions at which the candidate `9`
-        is still found in the second row by
+        Consider the following example to retrieve the set of array positions at 
+        which the candidate `9` is still found in the second row:
 
-        >>> Sudoku.occurrences['r'][1][8]
-        >>> {9, 11, 15}
+        Examples:
+            >>> Sudoku.occurrences['r'][1][8]
+            {9, 11, 15}
 
-        where `['r'][1]` indicates the second row and `[8]` specifies the list
-        position at which the occurrences of the value `9` are stored.
+        Thereby, `['r'][1]` indicates the second row and `[8]` specifies the 
+        list position at which the occurrences of the value `9` are stored.
+
+        Returns:
+            The occurrences (as above duh xD)
         """
         return self._occurrences
 
@@ -182,6 +206,9 @@ class Sudoku:
         the implementations of the solving algorithms should automatically 
         detect if such a violation has been taken place and correspondingly set 
         the `violated` attribute to `True`.
+
+        Returns:
+            Is the present configuration valid?
         """
         if not self.violated:
             goal = set(range(1,10))
@@ -202,20 +229,22 @@ class Sudoku:
 
     def get_tiles(self) -> List[List[Tile]]:
         """
-        Returns the tiles organized row by row.
+        Returns:
+            The tiles organized row by row
         """
         return [[t for t in self._tiles[9*r:9*(r+1)]] for r in range(9)]
 
     def get_options(self) -> List[List[set]]:
         """
-        Returns the remaining candidates for each tile as set organized row by 
-        row.
+        Returns:
+            The remaining candidates for each tile as set organized row by row
         """
         return [[t.options for t in self._tiles[9*r:9*(r+1)]] for r in range(9)]
 
     def get_solved(self) -> List[List[int]]:
         """
-        Returns the solved puzzle as a two-dimensional list.
+        Returns: 
+            The solved puzzle as a two-dimensional list.
         """
         if self.done:
             return [[list(tile.options)[0] for tile in row] for row in self.get_tiles()]
@@ -224,7 +253,8 @@ class Sudoku:
          
     def get_complexity_map(self) -> List[List[int]]:
         """
-        Returns the solving step a which the definite solution has been found 
-        for each tile (organized row by row).
+        Returns: 
+            The solving step a which the definite solution has been found 
+            for each tile (organized row by row).
         """
         return [[tile.solved_at for tile in row] for row in self.get_tiles()]

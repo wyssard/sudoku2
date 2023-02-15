@@ -27,7 +27,11 @@ theme:
 
 plugins:
   - search
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+          python:
+            options:
+              show_source: false
   - gen-files:
       scripts:
         - gen_api_docs.py
@@ -43,3 +47,5 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - admonition
   - pymdownx.details
+  - toc:
+        permalink: "#"

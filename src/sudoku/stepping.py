@@ -72,8 +72,21 @@ class StepperBase:
     @abstractmethod
     def set_consideration(self, tiles: set, options: set, message: str, interesting: bool = False):
         """
-        Interface method trough which the implementations of the solving 
-        algorithms can pass to the frontend.
+        Tell the stepper what `options` of what `tiles` we're currently 
+        considering to draw conclusions about what candidates we can eliminate.
+        The `message` will be printed at a successful elimination. The
+        `interesting` parameter specifies the complexity of the consideration. 
+
+        Args:
+            tiles: 
+                the tiles we consider to draw conclusion about possible 
+                future removals of candidates of neighboring tiles
+            options: the candidates that allow for the latter conclusions
+            message:   
+                the message to pass to the render when successfully 
+                removing candidates based on the latter conclusion.
+                interesting: whether the removal step should be printed by a 
+                stepper that only cares about elaborate algorithms
         """
         pass
     
@@ -128,19 +141,23 @@ class AnyStep(StepperBase):
     """
 
     def set_consideration(self, tiles: set, options: set, message: str, interesting: bool = False):
-        """
-        Tell the stepper what `options` of what `tiles` we're currently 
-        considering to draw conclusions about what candidates we can eliminate.
-        The `message` will be printed at a successful elimination. The
-        `interesting` parameter specifies the complexity of the consideration. 
-        """
-
         self.considered_tiles = tiles
         self.considered_options = options
         self.solving_message = message
         self.interesting = interesting
         
     def show_step(self, sudoku: Sudoku, affected_tiles: set, affected_options: set):
+        """
+        Invoke the render to print the solving step based on the previously
+        specified [consideration][sudoku.stepping.StepperBase.set_consideration].
+
+        Args:
+            sudoku: the concerned puzzle
+            affected_tiles: the tiles affected by the present configuration
+                            of the neighboring tiles
+            affected_options: the candidate to be removed from the latter tiles 
+        """
+
         self._increase()
 
         self._fmt.render(

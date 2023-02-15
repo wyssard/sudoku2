@@ -150,6 +150,12 @@ class FmtSolvingMethod(FmtSolvingBase):
 
     @abstractmethod
     def launch(self, S: Sudoku):
+        """
+        Interface method to invoke the internals of the Solving Algorithms.
+
+        Args:
+            S: the Sudoku puzzle to which the algorithm is applied
+        """
         pass
 
 class FmtParamSolvingMethod(FmtSolvingMethod):
@@ -307,6 +313,20 @@ class RemoveAndUpdate(FmtSolvingBase):
 
 
     def launch(self, S: Sudoku, where: int, which: set) -> bool:
+        """
+        Interface to initiate the removal of the candidates `which` form the 
+        tile at `where` of the Sudoku `S`.
+
+        Args:
+            S: the puzzle
+            where: index of the concerned tile
+            which: candidates to be removed
+
+        Returns:
+            Could any candidates be removed?
+        """
+
+
         tile = S.tiles[where]
         if (diff:=tile.options&which):
             if self._remove_and_check_violations(S, where, diff):
