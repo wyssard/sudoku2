@@ -767,7 +767,7 @@
         <code>BlankFormatter</code>
 
 
-</h2>
+<a href="#sudoku.formatting.BlankFormatter" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -777,65 +777,6 @@
 progress of the solver to the screen by any means.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\formatting.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">BlankFormatter</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Formatters implement the `render` method called by any stepper to print the</span>
-<span class="sd">    progress of the solver to the screen by any means.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">_get_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">considered_tiles</span><span class="p">,</span> <span class="n">considered_options</span><span class="p">,</span> <span class="n">affected_tiles</span><span class="p">,</span> <span class="n">affected_options</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;considered_tiles&quot;</span><span class="p">:</span> <span class="n">considered_tiles</span> <span class="k">if</span> <span class="n">considered_tiles</span> <span class="k">else</span> <span class="nb">set</span><span class="p">(),</span>
-            <span class="s2">&quot;considered_options&quot;</span><span class="p">:</span> <span class="n">considered_options</span> <span class="k">if</span> <span class="n">considered_options</span> <span class="k">else</span> <span class="nb">set</span><span class="p">(),</span>
-            <span class="s2">&quot;affected_tiles&quot;</span><span class="p">:</span> <span class="n">affected_tiles</span> <span class="k">if</span> <span class="n">affected_tiles</span> <span class="k">else</span> <span class="nb">set</span><span class="p">(),</span>
-            <span class="s2">&quot;affected_options&quot;</span><span class="p">:</span> <span class="n">affected_options</span> <span class="k">if</span> <span class="n">affected_options</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="p">}</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
-        <span class="n">sudoku</span><span class="p">:</span> <span class="n">Sudoku</span><span class="p">,</span> 
-        <span class="n">considered_tiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-        <span class="n">considered_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-        <span class="n">affected_tiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">affected_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-        <span class="n">solving_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> 
-        <span class="n">solving_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Print the Sudoku to the screen by the mean of your desire</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_defaults</span><span class="p">(</span>
-            <span class="n">considered_tiles</span><span class="p">,</span> <span class="n">considered_options</span><span class="p">,</span>
-            <span class="n">affected_tiles</span><span class="p">,</span> <span class="n">affected_options</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -860,46 +801,13 @@ progress of the solver to the screen by any means.</p>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
-</h3>
+<a href="#sudoku.formatting.BlankFormatter.render" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
       <p>Print the Sudoku to the screen by the mean of your desire</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\formatting.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
-<span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
-    <span class="n">sudoku</span><span class="p">:</span> <span class="n">Sudoku</span><span class="p">,</span> 
-    <span class="n">considered_tiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-    <span class="n">considered_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-    <span class="n">affected_tiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">affected_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-    <span class="n">solving_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> 
-    <span class="n">solving_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Print the Sudoku to the screen by the mean of your desire</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_defaults</span><span class="p">(</span>
-        <span class="n">considered_tiles</span><span class="p">,</span> <span class="n">considered_options</span><span class="p">,</span>
-        <span class="n">affected_tiles</span><span class="p">,</span> <span class="n">affected_options</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-      </details>
   </div>
 
 </div>
@@ -920,7 +828,7 @@ progress of the solver to the screen by any means.</p>
         <code>DeadFormatter</code>
 
 
-</h2>
+<a href="#sudoku.formatting.DeadFormatter" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -933,25 +841,6 @@ Such objects serve as default value for variables that take an object of
 type <code>BlankFormatter</code> as value.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\formatting.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">DeadFormatter</span><span class="p">(</span><span class="n">BlankFormatter</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Trivial formatter to raise an error when its `render` method is called.</span>
-<span class="sd">    Such objects serve as default value for variables that take an object of </span>
-<span class="sd">    type `BlankFormatter` as value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">FormatterMissingError</span><span class="p">()</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -981,7 +870,7 @@ type <code>BlankFormatter</code> as value.</p>
         <code>FormatterMissingError</code>
 
 
-</h2>
+<a href="#sudoku.formatting.FormatterMissingError" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -992,21 +881,6 @@ type <code>BlankFormatter</code> as value.</p>
       <p>No formatter has been assigned to the stepper.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\formatting.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">FormatterMissingError</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    No formatter has been assigned to the stepper.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;no formatter has been assigned to the stepper&quot;</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 

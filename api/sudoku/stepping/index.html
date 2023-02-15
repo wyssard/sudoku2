@@ -593,8 +593,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sudoku.stepping.AnyStep.set_consideration" class="md-nav__link">
-    set_consideration()
+  <a href="#sudoku.stepping.AnyStep.show_step" class="md-nav__link">
+    show_step()
   </a>
   
 </li>
@@ -783,8 +783,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sudoku.stepping.AnyStep.set_consideration" class="md-nav__link">
-    set_consideration()
+  <a href="#sudoku.stepping.AnyStep.show_step" class="md-nav__link">
+    show_step()
   </a>
   
 </li>
@@ -952,7 +952,7 @@ by means of a graphical output.</p>
         <code>AnyStep</code>
 
 
-</h2>
+<a href="#sudoku.stepping.AnyStep" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -964,71 +964,6 @@ by means of a graphical output.</p>
 frontend.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\stepping.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">AnyStep</span><span class="p">(</span><span class="n">StepperBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Stepper class to transfer information about every elimination step to the</span>
-<span class="sd">    frontend.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">set_consideration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tiles</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">interesting</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Tell the stepper what `options` of what `tiles` we&#39;re currently </span>
-<span class="sd">        considering to draw conclusions about what candidates we can eliminate.</span>
-<span class="sd">        The `message` will be printed at a successful elimination. The</span>
-<span class="sd">        `interesting` parameter specifies the complexity of the consideration. </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">considered_tiles</span> <span class="o">=</span> <span class="n">tiles</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">considered_options</span> <span class="o">=</span> <span class="n">options</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">solving_message</span> <span class="o">=</span> <span class="n">message</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">interesting</span> <span class="o">=</span> <span class="n">interesting</span>
-
-    <span class="k">def</span> <span class="nf">show_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sudoku</span><span class="p">:</span> <span class="n">Sudoku</span><span class="p">,</span> <span class="n">affected_tiles</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">affected_options</span><span class="p">:</span> <span class="nb">set</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_increase</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
-            <span class="n">sudoku</span><span class="p">,</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">considered_tiles</span><span class="p">,</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">considered_options</span><span class="p">,</span> 
-            <span class="n">affected_tiles</span><span class="p">,</span> 
-            <span class="n">affected_options</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">solving_message</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_trg</span><span class="o">.</span><span class="n">trigger_next_step</span><span class="p">()</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -1046,46 +981,62 @@ frontend.</p>
 
 
 
-<h3 id="sudoku.stepping.AnyStep.set_consideration" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_consideration</span><span class="p">(</span><span class="n">tiles</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">interesting</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<h3 id="sudoku.stepping.AnyStep.show_step" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">show_step</span><span class="p">(</span><span class="n">sudoku</span><span class="p">,</span> <span class="n">affected_tiles</span><span class="p">,</span> <span class="n">affected_options</span><span class="p">)</span></code>
 
-</h3>
+<a href="#sudoku.stepping.AnyStep.show_step" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Tell the stepper what <code>options</code> of what <code>tiles</code> we're currently 
-considering to draw conclusions about what candidates we can eliminate.
-The <code>message</code> will be printed at a successful elimination. The
-<code>interesting</code> parameter specifies the complexity of the consideration.</p>
+      <p>Invoke the render to print the solving step based on the previously
+specified <a class="autorefs autorefs-internal" href="#sudoku.stepping.StepperBase.set_consideration">consideration</a>.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\stepping.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">set_consideration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tiles</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">interesting</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Tell the stepper what `options` of what `tiles` we&#39;re currently </span>
-<span class="sd">    considering to draw conclusions about what candidates we can eliminate.</span>
-<span class="sd">    The `message` will be printed at a successful elimination. The</span>
-<span class="sd">    `interesting` parameter specifies the complexity of the consideration. </span>
-<span class="sd">    &quot;&quot;&quot;</span>
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>sudoku</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="sudoku.structure.Sudoku" href="../structure/#sudoku.structure.Sudoku">Sudoku</a></code>
+          </td>
+          <td><p>the concerned puzzle</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>affected_tiles</code></td>
+          <td>
+                <code>set</code>
+          </td>
+          <td><p>the tiles affected by the present configuration
+            of the neighboring tiles</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>affected_options</code></td>
+          <td>
+                <code>set</code>
+          </td>
+          <td><p>the candidate to be removed from the latter tiles</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">considered_tiles</span> <span class="o">=</span> <span class="n">tiles</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">considered_options</span> <span class="o">=</span> <span class="n">options</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">solving_message</span> <span class="o">=</span> <span class="n">message</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">interesting</span> <span class="o">=</span> <span class="n">interesting</span>
-</code></pre></div></td></tr></table></div>
-      </details>
   </div>
 
 </div>
@@ -1106,7 +1057,7 @@ The <code>message</code> will be printed at a successful elimination. The
         <code>DeadStepper</code>
 
 
-</h2>
+<a href="#sudoku.stepping.DeadStepper" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -1120,39 +1071,6 @@ assigned, this placeholder will raise an error whenever the user tries to
 make use of the abstract methods that any stepper needs to implement.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\stepping.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">DeadStepper</span><span class="p">(</span><span class="n">StepperBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Trivial &#39;stepper&#39; class serving as default value for any variable whose</span>
-<span class="sd">    value must be of type `StepperBase`. That is, if no proper &#39;stepper&#39; is</span>
-<span class="sd">    assigned, this placeholder will raise an error whenever the user tries to </span>
-<span class="sd">    make use of the abstract methods that any stepper needs to implement.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
-
-    <span class="k">def</span> <span class="nf">set_consideration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">StepperMissingError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">show_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">StepperMissingError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -1182,7 +1100,7 @@ make use of the abstract methods that any stepper needs to implement.</p>
         <code>DeadTrigger</code>
 
 
-</h2>
+<a href="#sudoku.stepping.DeadTrigger" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -1195,25 +1113,6 @@ default argument for variables that take an object of type <code>NoTrigger</code
 value.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\stepping.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">DeadTrigger</span><span class="p">(</span><span class="n">NoTrigger</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Trivial trigger to raise an error when called. Such objects serve as </span>
-<span class="sd">    default argument for variables that take an object of type `NoTrigger` as</span>
-<span class="sd">    value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">trigger_next_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">TriggerMissingError</span><span class="p">()</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -1243,7 +1142,7 @@ value.</p>
         <code>InterestingStep</code>
 
 
-</h2>
+<a href="#sudoku.stepping.InterestingStep" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -1256,31 +1155,6 @@ whose importance was set to 'interesting' by means of the respective
 argument of the <code>set_consideration</code> method are rendered.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\stepping.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">InterestingStep</span><span class="p">(</span><span class="n">AnyStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Stepper with functionality analogous to `AnyStep` but only solving steps</span>
-<span class="sd">    whose importance was set to &#39;interesting&#39; by means of the respective </span>
-<span class="sd">    argument of the `set_consideration` method are rendered.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">show_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sudoku</span><span class="p">:</span> <span class="n">Sudoku</span><span class="p">,</span> <span class="n">affected_tiles</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">affected_options</span><span class="p">:</span> <span class="nb">set</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">interesting</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">show_step</span><span class="p">(</span><span class="n">sudoku</span><span class="p">,</span> <span class="n">affected_tiles</span><span class="p">,</span> <span class="n">affected_options</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_increase</span><span class="p">()</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -1310,7 +1184,7 @@ argument of the <code>set_consideration</code> method are rendered.</p>
         <code>NoTrigger</code>
 
 
-</h2>
+<a href="#sudoku.stepping.NoTrigger" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -1320,29 +1194,6 @@ argument of the <code>set_consideration</code> method are rendered.</p>
 after the puzzle has been rendered.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\stepping.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">NoTrigger</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Classes that implement the functionality to await any sort uf user input</span>
-<span class="sd">    after the puzzle has been rendered.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">trigger_next_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Trigger the next solving step.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -1363,26 +1214,13 @@ after the puzzle has been rendered.</p>
 <h3 id="sudoku.stepping.NoTrigger.trigger_next_step" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">trigger_next_step</span><span class="p">()</span></code>
 
-</h3>
+<a href="#sudoku.stepping.NoTrigger.trigger_next_step" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
       <p>Trigger the next solving step.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\stepping.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">trigger_next_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Trigger the next solving step.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-</code></pre></div></td></tr></table></div>
-      </details>
   </div>
 
 </div>
@@ -1403,7 +1241,7 @@ after the puzzle has been rendered.</p>
         <code>Skipper</code>
 
 
-</h2>
+<a href="#sudoku.stepping.Skipper" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -1415,23 +1253,6 @@ after the puzzle has been rendered.</p>
 any rendering or interrupting the solving process.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\stepping.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Skipper</span><span class="p">(</span><span class="n">StepperBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Trivial stepper class that only counts the solving steps without invoking</span>
-<span class="sd">    any rendering or interrupting the solving process.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formatter</span><span class="p">:</span> <span class="n">BlankFormatter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">trigger</span><span class="p">:</span> <span class="n">NoTrigger</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formatter</span><span class="p">,</span> <span class="n">trigger</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -1461,7 +1282,7 @@ any rendering or interrupting the solving process.</p>
         <code>StepperBase</code>
 
 
-</h2>
+<a href="#sudoku.stepping.StepperBase" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -1472,95 +1293,6 @@ solution-step counting mechanism and the interface to pass information about
 the current state of the puzzle through the stepper to the frontend.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\stepping.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span>
-<span class="normal">97</span>
-<span class="normal">98</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">StepperBase</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class providing the template for any stepper by implementing a </span>
-<span class="sd">    solution-step counting mechanism and the interface to pass information about</span>
-<span class="sd">    the current state of the puzzle through the stepper to the frontend.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formatter</span><span class="p">:</span> <span class="n">BlankFormatter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">trigger</span><span class="p">:</span> <span class="n">NoTrigger</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a stepper instance by passing a formatting function, i.e. a</span>
-<span class="sd">        function to render the puzzle with additional information about the</span>
-<span class="sd">        solving process</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span> <span class="o">=</span> <span class="n">formatter</span> <span class="k">if</span> <span class="n">formatter</span> <span class="k">else</span> <span class="n">DeadFormatter</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_trg</span> <span class="o">=</span> <span class="n">trigger</span> <span class="k">if</span> <span class="n">trigger</span> <span class="k">else</span> <span class="n">DeadTrigger</span><span class="p">()</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_consideration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tiles</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">interesting</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Interface method trough which the implementations of the solving </span>
-<span class="sd">        algorithms can pass to the frontend.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
-
-    <span class="k">def</span> <span class="nf">_increase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">show_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Invoke the frontend to print the current state of the Sudoku and </span>
-<span class="sd">        increase the solving step `counter` by one as this method is only called</span>
-<span class="sd">        after a successful elimination of a candidate.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_increase</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sudoku</span><span class="p">:</span> <span class="n">Sudoku</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Use the selected formatter to render the Sudoku without any information</span>
-<span class="sd">        about the solving process.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">sudoku</span><span class="p">,</span> 
-            <span class="n">solving_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">,</span> <span class="n">solving_message</span><span class="o">=</span><span class="s2">&quot;puzzle solved&quot;</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -1581,7 +1313,7 @@ the current state of the puzzle through the stepper to the frontend.</p>
 <h3 id="sudoku.stepping.StepperBase.__init__" class="doc doc-heading">
 <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">formatter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trigger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
-</h3>
+<a href="#sudoku.stepping.StepperBase.__init__" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
@@ -1590,27 +1322,6 @@ the current state of the puzzle through the stepper to the frontend.</p>
 function to render the puzzle with additional information about the
 solving process</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\stepping.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formatter</span><span class="p">:</span> <span class="n">BlankFormatter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">trigger</span><span class="p">:</span> <span class="n">NoTrigger</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create a stepper instance by passing a formatting function, i.e. a</span>
-<span class="sd">    function to render the puzzle with additional information about the</span>
-<span class="sd">    solving process</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span> <span class="o">=</span> <span class="n">formatter</span> <span class="k">if</span> <span class="n">formatter</span> <span class="k">else</span> <span class="n">DeadFormatter</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_trg</span> <span class="o">=</span> <span class="n">trigger</span> <span class="k">if</span> <span class="n">trigger</span> <span class="k">else</span> <span class="n">DeadTrigger</span><span class="p">()</span>
-</code></pre></div></td></tr></table></div>
-      </details>
   </div>
 
 </div>
@@ -1626,31 +1337,64 @@ solving process</p>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
-</h3>
+<a href="#sudoku.stepping.StepperBase.set_consideration" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Interface method trough which the implementations of the solving 
-algorithms can pass to the frontend.</p>
+      <p>Tell the stepper what <code>options</code> of what <code>tiles</code> we're currently 
+considering to draw conclusions about what candidates we can eliminate.
+The <code>message</code> will be printed at a successful elimination. The
+<code>interesting</code> parameter specifies the complexity of the consideration. </p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\stepping.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
-<span class="k">def</span> <span class="nf">set_consideration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tiles</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">interesting</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Interface method trough which the implementations of the solving </span>
-<span class="sd">    algorithms can pass to the frontend.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-</code></pre></div></td></tr></table></div>
-      </details>
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>tiles</code></td>
+          <td>
+                <code>set</code>
+          </td>
+          <td><p>the tiles we consider to draw conclusion about possible 
+future removals of candidates of neighboring tiles</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>options</code></td>
+          <td>
+                <code>set</code>
+          </td>
+          <td><p>the candidates that allow for the latter conclusions</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>message</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the message to pass to the render when successfully 
+removing candidates based on the latter conclusion.
+interesting: whether the removal step should be printed by a 
+stepper that only cares about elaborate algorithms</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
   </div>
 
 </div>
@@ -1662,7 +1406,7 @@ algorithms can pass to the frontend.</p>
 <h3 id="sudoku.stepping.StepperBase.show" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">show</span><span class="p">(</span><span class="n">sudoku</span><span class="p">)</span></code>
 
-</h3>
+<a href="#sudoku.stepping.StepperBase.show" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
@@ -1670,23 +1414,6 @@ algorithms can pass to the frontend.</p>
       <p>Use the selected formatter to render the Sudoku without any information
 about the solving process.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\stepping.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span>
-<span class="normal">97</span>
-<span class="normal">98</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sudoku</span><span class="p">:</span> <span class="n">Sudoku</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Use the selected formatter to render the Sudoku without any information</span>
-<span class="sd">    about the solving process.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">sudoku</span><span class="p">,</span> 
-        <span class="n">solving_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">,</span> <span class="n">solving_message</span><span class="o">=</span><span class="s2">&quot;puzzle solved&quot;</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-      </details>
   </div>
 
 </div>
@@ -1702,7 +1429,7 @@ about the solving process.</p>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
-</h3>
+<a href="#sudoku.stepping.StepperBase.show_step" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
@@ -1711,25 +1438,6 @@ about the solving process.</p>
 increase the solving step <code>counter</code> by one as this method is only called
 after a successful elimination of a candidate.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\stepping.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
-<span class="k">def</span> <span class="nf">show_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Invoke the frontend to print the current state of the Sudoku and </span>
-<span class="sd">    increase the solving step `counter` by one as this method is only called</span>
-<span class="sd">    after a successful elimination of a candidate.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_increase</span><span class="p">()</span>
-</code></pre></div></td></tr></table></div>
-      </details>
   </div>
 
 </div>
@@ -1750,7 +1458,7 @@ after a successful elimination of a candidate.</p>
         <code>StepperMissingError</code>
 
 
-</h2>
+<a href="#sudoku.stepping.StepperMissingError" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -1761,21 +1469,6 @@ after a successful elimination of a candidate.</p>
       <p>No stepper has been assigned to the solving method.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\stepping.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">StepperMissingError</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    No stepper has been assigned to the solving method. </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;no stepper has been set for solving method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -1805,7 +1498,7 @@ after a successful elimination of a candidate.</p>
         <code>TriggerMissingError</code>
 
 
-</h2>
+<a href="#sudoku.stepping.TriggerMissingError" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -1816,21 +1509,6 @@ after a successful elimination of a candidate.</p>
       <p>No trigger has been assigned to the stepper.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\stepping.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">TriggerMissingError</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    No trigger has been assigned to the stepper.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;no trigger has been assigned to the stepper&quot;</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 

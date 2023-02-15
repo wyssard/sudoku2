@@ -688,16 +688,16 @@
 
 
 
-<h1 id="solving-process">Solving Process</h1>
+<h1 id="solving-process">Solving Process<a class="headerlink" href="#solving-process" title="Permanent link">#</a></h1>
 <p>When working with the <a href="../custom_solver/">Custom Solver</a> or when making use of the <a href="../api_guide/">API</a>, your interaction with the package goes beyond the simplified functional access and you will be confronted with the objects that, e.g., represent the solving algorithms of the rendering frontend. In order to understand how these objects interact with each other, a basic understanding of the solving procedure, illustrated by the flowchart below, is indispensible.</p>
 <p>We come back to some specific nodes of the diagram when discussing the <a href="../api_guide/">API</a> or the <a href="../custom_solver/">Custom Solver</a> generator.</p>
-<h2 id="a-word-of-caution">A Word of Caution</h2>
+<h2 id="a-word-of-caution">A Word of Caution<a class="headerlink" href="#a-word-of-caution" title="Permanent link">#</a></h2>
 <p>Since there are some severe differences between the implemented solving algorithms, the API does not force you (so far) to entirely stick to the prescription suggested by the diagram. For example, you are free to decide whether to implement a loop over tiles or to replace it by a better suiting approach.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Future versions may address this inconvenience by providing a further abstraction that ultimately forces you to stick to the suggested prescription by means of an intermediate abstract class. Since, however, the procedures that are not abstracted are very simple (they come in form of simple conditions or loops), further abstraction may also be omitted completely, to make the code more readable.</p>
 </div>
-<h2 id="flowchart">Flowchart</h2>
+<h2 id="flowchart">Flowchart<a class="headerlink" href="#flowchart" title="Permanent link">#</a></h2>
 <pre class="mermaid"><code>flowchart
     init([Launch Solver]) --&gt; InitialAlgorithm[Use initial Algorithm]
     InitialAlgorithm --&gt; LaunchSolver[Launch Algorithm] 

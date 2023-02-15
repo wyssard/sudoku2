@@ -963,7 +963,7 @@ collections.</p>
         <code>Sudoku</code>
 
 
-</h2>
+<a href="#sudoku.structure.Sudoku" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -973,317 +973,6 @@ collections.</p>
 objects in a one dimensional list.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\structure.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Sudoku</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Container structure to represent the Sudoku grid by storing 81 `Tile` </span>
-<span class="sd">    objects in a one dimensional list. </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">violated</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tiles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tile</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_containers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_occurrences</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]]</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">CONTAINER_TYPES</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_occurrences</span><span class="p">[</span><span class="n">kind</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">set</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_containers</span><span class="p">[</span><span class="n">kind</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
-
-        <span class="n">given_tiles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">tile_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">81</span><span class="p">):</span>
-            <span class="n">tile</span> <span class="o">=</span> <span class="n">Tile</span><span class="p">(</span><span class="o">**</span><span class="n">index_to_pos</span><span class="p">(</span><span class="n">tile_index</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">val</span><span class="o">:=</span><span class="n">content</span><span class="p">[</span><span class="n">tile_index</span><span class="p">]:</span>
-                <span class="n">tile</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="n">val</span><span class="p">}</span>
-                <span class="n">given_tiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tile_index</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">CONTAINER_TYPES</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_containers</span><span class="p">[</span><span class="n">kind</span><span class="p">][</span><span class="n">tile</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">kind</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tile_index</span><span class="p">)</span>
-
-                <span class="n">occurrence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_occurrences</span><span class="p">[</span><span class="n">kind</span><span class="p">][</span><span class="n">tile</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">kind</span><span class="p">]]</span>
-                <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">tile</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
-                    <span class="n">occurrence</span><span class="p">[</span><span class="n">o</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tile_index</span><span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_tiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tile</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">tile_index</span> <span class="ow">in</span> <span class="n">given_tiles</span><span class="p">:</span>
-            <span class="n">tile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tiles</span><span class="p">[</span><span class="n">tile_index</span><span class="p">]</span>
-
-            <span class="c1"># option &#39;o&#39; has occurrence position &#39;o-1&#39;</span>
-            <span class="n">option_occurrence_pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">options</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
-
-            <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">CONTAINER_TYPES</span><span class="p">:</span>
-                <span class="n">occurrence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_occurrences</span><span class="p">[</span><span class="n">kind</span><span class="p">][</span><span class="n">tile</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">kind</span><span class="p">]]</span>
-                <span class="n">occurrence</span><span class="p">[</span><span class="n">option_occurrence_pos</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">tile_index</span><span class="p">}</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">max_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the maximum number of candidates over all the tiles.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">n_options</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tiles</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns whether the puzzle has been solved.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_options</span><span class="o">==</span><span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">violated</span> <span class="k">else</span> <span class="kc">False</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tiles</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tile</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        List of length 81 to store every tile of the Sudoku grid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tiles</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">containers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Structure to store the indices of the tiles, i.e. their position in the</span>
-<span class="sd">        `tiles` array, that live in each row, column and square. </span>
-
-<span class="sd">        Consider the following example to retrieve the array positions of the </span>
-<span class="sd">        tiles that live in the first square:</span>
-
-<span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; Sudoku.containers[&#39;s&#39;][0]</span>
-<span class="sd">            [0, 1, 2, 9, 10, 11, 18, 19, 20]</span>
-
-<span class="sd">        Thereby, the subscript `[&#39;s&#39;][0]` indicates the square at position 0.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            the containers</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_containers</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">occurrences</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        For each row, column and square and for each number of 1 to 9, this </span>
-<span class="sd">        dictionary stores at which `tiles` positions the respective value still </span>
-<span class="sd">        appears as candidate.</span>
-
-<span class="sd">        Example: Retrieve the set of array positions at which the candidate `9`</span>
-<span class="sd">        is still found in the second row by</span>
-
-<span class="sd">        &gt;&gt;&gt; Sudoku.occurrences[&#39;r&#39;][1][8]</span>
-<span class="sd">        &gt;&gt;&gt; {9, 11, 15}</span>
-
-<span class="sd">        where `[&#39;r&#39;][1]` indicates the second row and `[8]` specifies the list</span>
-<span class="sd">        position at which the occurrences of the value `9` are stored.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_occurrences</span>
-
-    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Explicitly check whether the Sudoku rules have been violated in the </span>
-<span class="sd">        solving process. One should try to avoid explicit use of this method as</span>
-<span class="sd">        the implementations of the solving algorithms should automatically </span>
-<span class="sd">        detect if such a violation has been taken place and correspondingly set </span>
-<span class="sd">        the `violated` attribute to `True`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">violated</span><span class="p">:</span>
-            <span class="n">goal</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">CONTAINER_TYPES</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
-                    <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_containers</span><span class="p">[</span><span class="n">kind</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                    <span class="n">options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-                    <span class="k">for</span> <span class="n">tile_index</span> <span class="ow">in</span> <span class="n">container</span><span class="p">:</span>
-                        <span class="n">options</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tiles</span><span class="p">[</span><span class="n">tile_index</span><span class="p">]</span><span class="o">.</span><span class="n">options</span>
-
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span> <span class="o">==</span> <span class="n">goal</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;error at </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="k">return</span> <span class="kc">False</span>
-
-            <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">def</span> <span class="nf">get_tiles</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tile</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the tiles organized row by row.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tiles</span><span class="p">[</span><span class="mi">9</span><span class="o">*</span><span class="n">r</span><span class="p">:</span><span class="mi">9</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">)]]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
-
-    <span class="k">def</span> <span class="nf">get_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">set</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the remaining candidates for each tile as set organized row by </span>
-<span class="sd">        row.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[[</span><span class="n">t</span><span class="o">.</span><span class="n">options</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tiles</span><span class="p">[</span><span class="mi">9</span><span class="o">*</span><span class="n">r</span><span class="p">:</span><span class="mi">9</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">)]]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
-
-    <span class="k">def</span> <span class="nf">get_solved</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the solved puzzle as a two-dimensional list.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[[</span><span class="nb">list</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">options</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tiles</span><span class="p">()]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Puzzle is not solved yet.&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_complexity_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the solving step a which the definite solution has been found </span>
-<span class="sd">        for each tile (organized row by row).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[[</span><span class="n">tile</span><span class="o">.</span><span class="n">solved_at</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tiles</span><span class="p">()]</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -1306,7 +995,7 @@ objects in a one dimensional list.</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-</h3>
+<a href="#sudoku.structure.Sudoku.containers" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
@@ -1335,7 +1024,7 @@ tiles that live in the first square:</p>
           <td>
                 <code><span title="typing.Dict">Dict</span>[str, <span title="typing.List">List</span>[<span title="typing.List">List</span>[int]]]</code>
           </td>
-          <td><p>the containers</p></td>
+          <td><p>The containers (as described above)</p></td>
         </tr>
     </tbody>
   </table>
@@ -1354,12 +1043,13 @@ tiles that live in the first square:</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-</h3>
+<a href="#sudoku.structure.Sudoku.done" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Returns whether the puzzle has been solved.</p>
+      <p>Returns: 
+    Whether the puzzle is solved</p>
   </div>
 
 </div>
@@ -1375,12 +1065,29 @@ tiles that live in the first square:</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-</h3>
+<a href="#sudoku.structure.Sudoku.max_options" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Returns the maximum number of candidates over all the tiles.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>The maximum number of candidates over all the tiles</p></td>
+        </tr>
+    </tbody>
+  </table>
   </div>
 
 </div>
@@ -1396,7 +1103,7 @@ tiles that live in the first square:</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-</h3>
+<a href="#sudoku.structure.Sudoku.occurrences" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
@@ -1404,18 +1111,33 @@ tiles that live in the first square:</p>
       <p>For each row, column and square and for each number of 1 to 9, this 
 dictionary stores at which <code>tiles</code> positions the respective value still 
 appears as candidate.</p>
-<p>Example: Retrieve the set of array positions at which the candidate <code>9</code>
-is still found in the second row by</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>Sudoku.occurrences['r'][1][8]
-{9, 11, 15}</p>
-</blockquote>
-</blockquote>
-</blockquote>
-<p>where <code>['r'][1]</code> indicates the second row and <code>[8]</code> specifies the list
-position at which the occurrences of the value <code>9</code> are stored.</p>
+<p>Consider the following example to retrieve the set of array positions at 
+which the candidate <code>9</code> is still found in the second row:</p>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">Sudoku</span><span class="o">.</span><span class="n">occurrences</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">8</span><span class="p">]</span>
+<span class="go">{9, 11, 15}</span>
+</code></pre></div>
+      <p>Thereby, <code>['r'][1]</code> indicates the second row and <code>[8]</code> specifies the 
+list position at which the occurrences of the value <code>9</code> are stored.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Dict">Dict</span>[str, <span title="typing.List">List</span>[<span title="typing.List">List</span>[<span title="typing.Set">Set</span>[int]]]]</code>
+          </td>
+          <td><p>The occurrences (as above duh xD)</p></td>
+        </tr>
+    </tbody>
+  </table>
   </div>
 
 </div>
@@ -1431,12 +1153,29 @@ position at which the occurrences of the value <code>9</code> are stored.</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-</h3>
+<a href="#sudoku.structure.Sudoku.tiles" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>List of length 81 to store every tile of the Sudoku grid.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="sudoku.structure.Tile" href="#sudoku.structure.Tile">Tile</a>]</code>
+          </td>
+          <td><p>List of length 81 to store every tile of the Sudoku grid.</p></td>
+        </tr>
+    </tbody>
+  </table>
   </div>
 
 </div>
@@ -1450,29 +1189,15 @@ position at which the occurrences of the value <code>9</code> are stored.</p>
 <h3 id="sudoku.structure.Sudoku.get_complexity_map" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">get_complexity_map</span><span class="p">()</span></code>
 
-</h3>
+<a href="#sudoku.structure.Sudoku.get_complexity_map" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Returns the solving step a which the definite solution has been found 
-for each tile (organized row by row).</p>
+      <p>Returns: 
+    The solving step a which the definite solution has been found 
+    for each tile (organized row by row).</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\structure.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_complexity_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns the solving step a which the definite solution has been found </span>
-<span class="sd">    for each tile (organized row by row).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">[[</span><span class="n">tile</span><span class="o">.</span><span class="n">solved_at</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tiles</span><span class="p">()]</span>
-</code></pre></div></td></tr></table></div>
-      </details>
   </div>
 
 </div>
@@ -1484,29 +1209,30 @@ for each tile (organized row by row).</p>
 <h3 id="sudoku.structure.Sudoku.get_options" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">get_options</span><span class="p">()</span></code>
 
-</h3>
+<a href="#sudoku.structure.Sudoku.get_options" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Returns the remaining candidates for each tile as set organized row by 
-row.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\structure.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">set</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns the remaining candidates for each tile as set organized row by </span>
-<span class="sd">    row.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">[[</span><span class="n">t</span><span class="o">.</span><span class="n">options</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tiles</span><span class="p">[</span><span class="mi">9</span><span class="o">*</span><span class="n">r</span><span class="p">:</span><span class="mi">9</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">)]]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
-</code></pre></div></td></tr></table></div>
-      </details>
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.List">List</span>[<span title="typing.List">List</span>[set]]</code>
+          </td>
+          <td><p>The remaining candidates for each tile as set organized row by row</p></td>
+        </tr>
+    </tbody>
+  </table>
+
   </div>
 
 </div>
@@ -1518,32 +1244,14 @@ row.</p>
 <h3 id="sudoku.structure.Sudoku.get_solved" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">get_solved</span><span class="p">()</span></code>
 
-</h3>
+<a href="#sudoku.structure.Sudoku.get_solved" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Returns the solved puzzle as a two-dimensional list.</p>
+      <p>Returns: 
+    The solved puzzle as a two-dimensional list.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\structure.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_solved</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns the solved puzzle as a two-dimensional list.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[[</span><span class="nb">list</span><span class="p">(</span><span class="n">tile</span><span class="o">.</span><span class="n">options</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tiles</span><span class="p">()]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Puzzle is not solved yet.&quot;</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-      </details>
   </div>
 
 </div>
@@ -1555,26 +1263,30 @@ row.</p>
 <h3 id="sudoku.structure.Sudoku.get_tiles" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">get_tiles</span><span class="p">()</span></code>
 
-</h3>
+<a href="#sudoku.structure.Sudoku.get_tiles" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Returns the tiles organized row by row.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\structure.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_tiles</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tile</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns the tiles organized row by row.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">[[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tiles</span><span class="p">[</span><span class="mi">9</span><span class="o">*</span><span class="n">r</span><span class="p">:</span><span class="mi">9</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">)]]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
-</code></pre></div></td></tr></table></div>
-      </details>
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.List">List</span>[<span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="sudoku.structure.Tile" href="#sudoku.structure.Tile">Tile</a>]]</code>
+          </td>
+          <td><p>The tiles organized row by row</p></td>
+        </tr>
+    </tbody>
+  </table>
+
   </div>
 
 </div>
@@ -1586,7 +1298,7 @@ row.</p>
 <h3 id="sudoku.structure.Sudoku.is_valid" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">is_valid</span><span class="p">()</span></code>
 
-</h3>
+<a href="#sudoku.structure.Sudoku.is_valid" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
@@ -1597,57 +1309,24 @@ the implementations of the solving algorithms should automatically
 detect if such a violation has been taken place and correspondingly set 
 the <code>violated</code> attribute to <code>True</code>.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\structure.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Explicitly check whether the Sudoku rules have been violated in the </span>
-<span class="sd">    solving process. One should try to avoid explicit use of this method as</span>
-<span class="sd">    the implementations of the solving algorithms should automatically </span>
-<span class="sd">    detect if such a violation has been taken place and correspondingly set </span>
-<span class="sd">    the `violated` attribute to `True`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">violated</span><span class="p">:</span>
-        <span class="n">goal</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">CONTAINER_TYPES</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
-                <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_containers</span><span class="p">[</span><span class="n">kind</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-                <span class="k">for</span> <span class="n">tile_index</span> <span class="ow">in</span> <span class="n">container</span><span class="p">:</span>
-                    <span class="n">options</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tiles</span><span class="p">[</span><span class="n">tile_index</span><span class="p">]</span><span class="o">.</span><span class="n">options</span>
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>Is the present configuration valid?</p></td>
+        </tr>
+    </tbody>
+  </table>
 
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span> <span class="o">==</span> <span class="n">goal</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;error at </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="k">return</span> <span class="kc">True</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-</code></pre></div></td></tr></table></div>
-      </details>
   </div>
 
 </div>
@@ -1668,7 +1347,7 @@ the <code>violated</code> attribute to <code>True</code>.</p>
         <code>Tile</code>
 
 
-</h2>
+<a href="#sudoku.structure.Tile" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -1680,103 +1359,6 @@ index. Moreover, this class is needed to keep track of the possible
 candidate values a tile can still take in the process of solving the puzzle.</p>
 
 
-        <details class="quote">
-          <summary>Source code in <code>sudoku\structure.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Tile</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Structure to represent a tile of the Sudoku grid. Tile objects store the </span>
-<span class="sd">    position of a tile by means of specifying their row, column and square </span>
-<span class="sd">    index. Moreover, this class is needed to keep track of the possible </span>
-<span class="sd">    candidate values a tile can still take in the process of solving the puzzle.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_options</span> <span class="o">=</span> <span class="mi">9</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">solved_at</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">pos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the row, column and square index of the tile formatted as</span>
-<span class="sd">        `{&#39;r&#39;: *row index*, &#39;c&#39;: *column index*, &#39;s&#39;: *square index*}`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the remaining candidate values for this tile.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span>
-
-    <span class="nd">@options</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="n">new_options</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_options</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_options</span><span class="p">)</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">to_none_tile</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tile</span><span class="p">:</span> <span class="n">Tile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tile</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a tile that has no candidate values at the position of the </span>
-<span class="sd">        `tile` that is given as argument.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
-        <span class="n">obj</span><span class="o">.</span><span class="n">_pos</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">_pos</span>
-        <span class="n">obj</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">obj</span><span class="o">.</span><span class="n">n_options</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">return</span> <span class="n">obj</span>
-</code></pre></div></td></tr></table></div>
-        </details>
 
   
 
@@ -1800,12 +1382,29 @@ candidate values a tile can still take in the process of solving the puzzle.</p>
       <small class="doc doc-label doc-label-writable"><code>writable</code></small>
   </span>
 
-</h3>
+<a href="#sudoku.structure.Tile.options" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Get the remaining candidate values for this tile.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>set</code>
+          </td>
+          <td><p>The remaining candidate values for this tile</p></td>
+        </tr>
+    </tbody>
+  </table>
   </div>
 
 </div>
@@ -1821,13 +1420,31 @@ candidate values a tile can still take in the process of solving the puzzle.</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-</h3>
+<a href="#sudoku.structure.Tile.pos" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
   
       <p>Get the row, column and square index of the tile formatted as
 <code>{'r': *row index*, 'c': *column index*, 's': *square index*}</code>.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Dict">Dict</span>[str, int]</code>
+          </td>
+          <td><p>The row, column and square index of the tile</p></td>
+        </tr>
+    </tbody>
+  </table>
   </div>
 
 </div>
@@ -1845,7 +1462,7 @@ candidate values a tile can still take in the process of solving the puzzle.</p>
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
-</h3>
+<a href="#sudoku.structure.Tile.to_none_tile" class="headerlink" title="Permanent link">#</a></h3>
 
 
   <div class="doc doc-contents ">
@@ -1853,31 +1470,6 @@ candidate values a tile can still take in the process of solving the puzzle.</p>
       <p>Create a tile that has no candidate values at the position of the 
 <code>tile</code> that is given as argument.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\structure.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
-<span class="k">def</span> <span class="nf">to_none_tile</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tile</span><span class="p">:</span> <span class="n">Tile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tile</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create a tile that has no candidate values at the position of the </span>
-<span class="sd">    `tile` that is given as argument.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
-    <span class="n">obj</span><span class="o">.</span><span class="n">_pos</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">_pos</span>
-    <span class="n">obj</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">obj</span><span class="o">.</span><span class="n">n_options</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">return</span> <span class="n">obj</span>
-</code></pre></div></td></tr></table></div>
-      </details>
   </div>
 
 </div>
@@ -1898,7 +1490,7 @@ candidate values a tile can still take in the process of solving the puzzle.</p>
 <h2 id="sudoku.structure.index_to_pos" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">index_to_pos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></code>
 
-</h2>
+<a href="#sudoku.structure.index_to_pos" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -1906,21 +1498,48 @@ candidate values a tile can still take in the process of solving the puzzle.</p>
       <p>Get the row, column and square index from the tile index <code>t</code> formatted as 
 <code>{'r': *row index*, 'c': *column index*, 's': *square index*}</code>.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\structure.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">index_to_pos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the row, column and square index from the tile index `t` formatted as </span>
-<span class="sd">    `{&#39;r&#39;: *row index*, &#39;c&#39;: *column index*, &#39;s&#39;: *square index*}`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">r</span><span class="o">:=</span><span class="n">t</span><span class="o">//</span><span class="mi">9</span><span class="p">),</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">c</span><span class="o">:=</span><span class="n">t</span><span class="o">%</span><span class="mi">9</span><span class="p">),</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">//</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">c</span><span class="o">//</span><span class="mi">3</span><span class="p">}</span>
-</code></pre></div></td></tr></table></div>
-      </details>
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>t</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>the tile index</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Dict">Dict</span>[str, int]</code>
+          </td>
+          <td><p>Dict containing row, column and square index</p></td>
+        </tr>
+    </tbody>
+  </table>
+
   </div>
 
 </div>
@@ -1932,7 +1551,7 @@ candidate values a tile can still take in the process of solving the puzzle.</p>
 <h2 id="sudoku.structure.row_column_to_index" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">row_column_to_index</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span></code>
 
-</h2>
+<a href="#sudoku.structure.row_column_to_index" class="headerlink" title="Permanent link">#</a></h2>
 
 
   <div class="doc doc-contents ">
@@ -1940,21 +1559,58 @@ candidate values a tile can still take in the process of solving the puzzle.</p>
       <p>Get the tile index, i.e. the position of the tile in an array of dimension
 <code>81</code>, by specifying the row <code>r</code> and the column <code>c</code>.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>sudoku\structure.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">row_column_to_index</span><span class="p">(</span><span class="n">r</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the tile index, i.e. the position of the tile in an array of dimension</span>
-<span class="sd">    `81`, by specifying the row `r` and the column `c`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">r</span><span class="o">*</span><span class="mi">9</span><span class="o">+</span><span class="n">c</span>
-</code></pre></div></td></tr></table></div>
-      </details>
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>r</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>row index</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>c</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>column index</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>tile index</p></td>
+        </tr>
+    </tbody>
+  </table>
+
   </div>
 
 </div>
