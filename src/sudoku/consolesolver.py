@@ -123,12 +123,21 @@ def _create_solver(stepper: StepperBase) -> FmtSolvingMethod:
 def solve(sudoku: Sudoku, stepping: str, flush: bool = False) -> Sudoku:
     """
     Solve a Sudoku given as `Sudoku` object (possibly obtained by the `load`
-    function). Currently, the `formatting` parameter only takes 'console' as 
-    possible value. You can choose between the steppers 'any', to render every
-    solving step, 'skip' to completely suppress rendering, or 'interesting' to
-    only print more elaborate solving methods. Use the `flush` parameter to 
-    erase the rendered output of the previous solving step before continuing.
+    function). Use the `stepping` parameter to choose between the steppers 
+    'any', to render every solving step, 'skip' to completely suppress 
+    rendering, or 'interesting' to only print more elaborate solving methods. 
+    Use the `flush` parameter to erase the rendered output of the previous 
+    solving step before continuing.
+
+    Args:
+        sudoku: The puzzle to solve
+        stepping: Specify what solving steps to render
+        flush: Set to `True` to erase the previous solving step
+
+    Returns:
+        The solved puzzle
     """
+
     stepper = _STEPPERS[stepping](ConsoleFormatter(flush=flush), ConsoleTrigger())
     solver = _create_solver(stepper)
     s = solver.launch(sudoku)

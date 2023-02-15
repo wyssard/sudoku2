@@ -8,7 +8,8 @@ We come back to some specific nodes of the diagram when discussing the [API](api
 
 Since there are some severe differences between the implemented solving algorithms, the API does not force you (so far) to entirely stick to the prescription suggested by the diagram. For example, you are free to decide whether to implement a loop over tiles or to replace it by a better suiting approach.
 
-> Future versions may address this inconvenience by providing a further abstraction that ultimately forces you to stick to the suggested prescription by means of an intermediate abstract class. Since, however, the procedures that are not abstracted are very simple (they come in form of simple conditions or loops), further abstraction may also be omitted completely, to make the code more readable.
+!!! note
+    Future versions may address this inconvenience by providing a further abstraction that ultimately forces you to stick to the suggested prescription by means of an intermediate abstract class. Since, however, the procedures that are not abstracted are very simple (they come in form of simple conditions or loops), further abstraction may also be omitted completely, to make the code more readable.
 
 ## Flowchart
 

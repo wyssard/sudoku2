@@ -4,16 +4,36 @@ docs_dir: content
 repo_url: https://github.com/wyssard/sudoku2
 
 nav:
-  - Home: index.md
-  - API Guide: api_guide.md
-  - Standard Solver: standard_solvers.md
-  - Solving Process: solving_process.md
-  - Custom Solver: custom_solver.md
-  - API: api/modules.md
+  - Home:
+    - Overview: index.md
+    - Solving Process: solving_process.md
+  - Usage: 
+    - Standard Solver: standard_solvers.md
+    - Custom Solver: custom_solver.md
+    - API Guide: api_guide.md
+  - API: api/
+    
 
 theme: 
   name: material
   language: en
+  font:
+    text: Lora
+  features:
+    - navigation.tabs
+    - navigation.top
+  palette:
+    - primary: white
+
+plugins:
+  - search
+  - mkdocstrings
+  - gen-files:
+      scripts:
+        - gen_api_docs.py
+  - literate-nav:
+      nav_file: modules.md
+
 
 markdown_extensions: 
   - pymdownx.superfences:
@@ -21,3 +41,5 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - admonition
+  - pymdownx.details

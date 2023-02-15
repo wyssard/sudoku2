@@ -338,8 +338,7 @@ class NTilesNOptions(FmtParamSolvingMethod):
     def _get_equivalent_tiles(self, S: Sudoku, where: Set[int], tile_index: int) -> Set[int]:
         """
         return indices of all tiles within `where` that have the same options 
-        as the tile at `which` 
-        (`which` is also included)
+        as the tile at `which` (`which` is also included).
         """
         
         if (tile:=S.tiles[tile_index]).n_options == 1:

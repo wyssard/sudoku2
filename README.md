@@ -67,7 +67,7 @@ Save the solved puzzle as a `.csv` file using the `save` function
 save(s, "solved.csv")
 ```
 
-Refer to the [docs](/docs/standard_solvers.md) to get an in-depth picture of the default solver.
+Refer to the [docs](docs/content/index.md) to get an in-depth picture of the default solver.
 
 ### Custom Solver
 
@@ -77,4 +77,4 @@ An example that makes use of this function to customize the solver can be found 
 
 ![solved.png](img/solved.png)
 
-Again, an in-depth picture of the API to create a custom solver with custom frontend is provided by the [documentation](docs/index.md).
+Again, an in-depth picture of the API to create a custom solver with custom frontend is provided by the [documentation](docs/content/index.md).

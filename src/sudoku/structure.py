@@ -142,14 +142,18 @@ class Sudoku:
         """
         Structure to store the indices of the tiles, i.e. their position in the
         `tiles` array, that live in each row, column and square. 
+        
+        Consider the following example to retrieve the array positions of the 
+        tiles that live in the first square:
+        
+        Examples:
+            >>> Sudoku.containers['s'][0]
+            [0, 1, 2, 9, 10, 11, 18, 19, 20]
 
-        Example: retrieve the array positions of the tiles that live in the 
-        first square by
+        Thereby, the subscript `['s'][0]` indicates the square at position 0.
 
-        >>> Sudoku.containers['s'][0]
-        >>> [0, 1, 2, 9, 10, 11, 18, 19, 20]
-
-        where the subscript `['s'][0]` indicates the square at position 0.
+        Returns:
+            the containers
         """
         return self._containers
 
