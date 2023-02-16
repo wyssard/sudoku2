@@ -79,11 +79,11 @@ class StepperBase:
 
         Args:
             tiles: 
-                the tiles we consider to draw conclusion about possible 
+                The tiles we consider to draw conclusion about possible 
                 future removals of candidates of neighboring tiles
-            options: the candidates that allow for the latter conclusions
+            options: The candidates that allow for the latter conclusions
             message:   
-                the message to pass to the render when successfully 
+                The message to pass to the render when successfully 
                 removing candidates based on the latter conclusion.
                 interesting: whether the removal step should be printed by a 
                 stepper that only cares about elaborate algorithms
@@ -152,10 +152,10 @@ class AnyStep(StepperBase):
         specified [consideration][sudoku.stepping.StepperBase.set_consideration].
 
         Args:
-            sudoku: the concerned puzzle
-            affected_tiles: the tiles affected by the present configuration
+            sudoku: The concerned puzzle
+            affected_tiles: The tiles affected by the present configuration
                             of the neighboring tiles
-            affected_options: the candidate to be removed from the latter tiles 
+            affected_options: The candidate to be removed from the latter tiles 
         """
 
         self._increase()

@@ -4,7 +4,7 @@ from time import perf_counter
 import numpy as np
 from matplotlib import pyplot as plt
 
-def solve(s: Sudoku) -> Sudoku:
+def custom_solve(s: Sudoku) -> Sudoku:
     stepper = Skipper(ConsoleFormatter(), ConsoleTrigger())
     solver = generate_solver([ScaledXWing(2), Bifurcation()], stepper)
     t0 = perf_counter()
@@ -55,5 +55,5 @@ def produce_plot(dest: str, sudoku: Sudoku, time: float, steps: int):
     plt.savefig(dest)
     
 if __name__=="__main__":
-    solved = solve(load("puzzles/evil4.csv"))
+    solved = custom_solve(load("puzzles/evil4.csv"))
     produce_plot("img/solved.png", **solved)

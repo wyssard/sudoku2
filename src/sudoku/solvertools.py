@@ -25,7 +25,7 @@ def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase)
 
     Args:
         method_order: Solving Algorithm objects in their preferred order
-        stepper: the Stepping object used by the 
+        stepper: The Stepping object used by the Solver
 
     Returns:
         The Solver
@@ -58,7 +58,7 @@ def load(path: Path) -> Sudoku:
     structure form the tow-dimensional grid.
 
     Args:
-        path: the path to the `.csv` file
+        path: The path to the `.csv` file
     
     Returns:
         The Puzzle in its initial shape
@@ -76,7 +76,7 @@ def save(sudoku: Sudoku, path: Path):
     Write the solved `sudoku` puzzle to a `csv` file at `path`
 
     Args:
-        sudoku: the puzzle to save
+        sudoku: The puzzle to save
         path: `.csv` file to write to
 
     """

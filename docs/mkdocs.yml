@@ -19,9 +19,11 @@ theme:
   language: en
   font:
     text: Lora
+
   features:
     - navigation.tabs
     - navigation.top
+    - content.code.copy
   palette:
     - primary: white
 
@@ -37,6 +39,7 @@ plugins:
         - gen_api_docs.py
   - literate-nav:
       nav_file: modules.md
+  - glightbox
 
 
 markdown_extensions: 
@@ -47,5 +50,9 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - admonition
   - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - attr_list
+  - md_in_html
   - toc:
         permalink: "#"

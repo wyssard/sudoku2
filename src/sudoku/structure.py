@@ -18,11 +18,11 @@ def row_column_to_index(r: int, c: int) -> int:
     `81`, by specifying the row `r` and the column `c`.
 
     Args:
-        r: row index
-        c: column index
+        r: Row index
+        c: Column index
 
     Returns:
-        tile index
+        Tile index
     """
     return r*9+c
 
@@ -32,7 +32,7 @@ def index_to_pos(t: int) -> Dict[str, int]:
     `{'r': *row index*, 'c': *column index*, 's': *square index*}`.
 
     Args:
-        t: the tile index
+        t: The tile index
 
     Returns:
         Dict containing row, column and square index

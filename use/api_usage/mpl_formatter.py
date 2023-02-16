@@ -2,7 +2,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.animation import ArtistAnimation
 from matplotlib.text import Text
-from matplotlib.figure import Figure
 from typing import List
 
 from sudoku.structure import Sudoku, index_to_pos
@@ -11,7 +10,6 @@ from sudoku.consolesolver import ConsoleTrigger
 from sudoku.solvertools import generate_solver, load
 from sudoku.solvingmethods import ScaledXWing, Bifurcation
 from sudoku.stepping import InterestingStep, AnyStep, NoTrigger
-
         
 class mplFormatter(BlankFormatter):
     OFFSET = 0.3
@@ -134,7 +132,7 @@ class mplAnimator(mplFormatter):
         return ArtistAnimation(self.fig, self.imgs, interval=100)
 
 
-def solve(sudoku: Sudoku):
+def mpl_solve(sudoku: Sudoku):
     plt.ion()
     formatter = mplFormatter()
     stepper = InterestingStep(formatter, ConsoleTrigger())
@@ -147,7 +145,7 @@ def solve(sudoku: Sudoku):
     
     return s
 
-def solving_animation(sudoku: Sudoku):
+def mpl_solve_animate(sudoku: Sudoku):
     formatter = mplAnimator()
     solver = generate_solver([ScaledXWing(2), Bifurcation()],
         AnyStep(formatter, NoTrigger()))
@@ -156,10 +154,10 @@ def solving_animation(sudoku: Sudoku):
     anim.save("img/solve_anim_i.mp4")
 
 def launch_solve(path):
-    solve(load(path))
+    mpl_solve(load(path))
 
 def launch_animate(path):
-    solving_animation(load(path))
+    mpl_solve_animate(load(path))
 
 if __name__=="__main__":
     launch_solve("puzzles/mid.csv")

@@ -154,7 +154,7 @@ class FmtSolvingMethod(FmtSolvingBase):
         Interface method to invoke the internals of the Solving Algorithms.
 
         Args:
-            S: the Sudoku puzzle to which the algorithm is applied
+            S: The Sudoku puzzle to which the algorithm is applied
         """
         pass
 
@@ -215,7 +215,7 @@ class RemoveAndUpdate(FmtSolvingBase):
                     self._stepper.set_consideration(
                         {where_only_one_left},
                         {o},
-                        f"tile {where_only_one_left} is the only tile in {CONTAINER_NAMES[kind]} {tile.pos[kind]+1} with {o} as option",
+                        f"tile {where_only_one_left} is the only tile in {CONTAINER_NAMES[kind]} {tile.pos[kind]} with {o} as option",
                         True)
                     
                     self.launch(S, where_only_one_left, remove_opts)
@@ -241,7 +241,7 @@ class RemoveAndUpdate(FmtSolvingBase):
                 self._stepper.set_consideration(
                     {tile_index},
                     tile.options,
-                    f"value of tile {tile_index} has been fixed to {tile.options}, thus removing this option from tile {t_idx}",
+                    f"the value of tile {tile_index} has been fixed to {tile.options}, thus removing this option from tile {t_idx}",
                     False)
 
                 self.launch(S, t_idx, tile.options)
@@ -318,9 +318,9 @@ class RemoveAndUpdate(FmtSolvingBase):
         tile at `where` of the Sudoku `S`.
 
         Args:
-            S: the puzzle
-            where: index of the concerned tile
-            which: candidates to be removed
+            S: The puzzle
+            where: Index of the concerned tile
+            which: Candidates to be removed
 
         Returns:
             Could any candidates be removed?
@@ -458,7 +458,7 @@ class ScaledXWing(FmtParamSolvingMethod):
                     self._stepper.set_consideration(
                         found_tiles,
                         {option},
-                        f"found option {option} in {n}x{n} square at {found_tiles}, thus removing {option} from {t_idx}",
+                        f"found option {option} in {n}x{n} square at {found_tiles}, thus removing {option} from tile {t_idx}",
                         True)
 
                     self._remove.launch(S, t_idx, {option})
@@ -560,7 +560,7 @@ class YWing(FmtSolvingMethod):
                 for target in common_range:
                     self._stepper.set_consideration(
                         considered_nodes, anchor.options|l_tile.options|r_tile.options, 
-                        f"found Y-Wing with anchor at {anchor_index} and nodes at {l}, {r}, remove the shared option {common_option} from {target}",
+                        f"found Y-Wing with anchor at {anchor_index} and nodes at {l}, {r}, remove the shared option {common_option} from tile {target}",
                         True)
                     
                     if self._remove.launch(S, target, common_option):
@@ -615,7 +615,7 @@ class Bifurcation(FmtSolvingMethod):
                 self._stepper.set_consideration(
                     {tile_index},
                     {alt_option},
-                    f"bifurcation at {tile_index}; try {alt_option}",
+                    f"bifurcation at tile {tile_index}; try {alt_option}",
                     True)
                 
                 self._remove.launch(backup, tile_index, {try_option})
@@ -625,7 +625,7 @@ class Bifurcation(FmtSolvingMethod):
                     self._stepper.set_consideration(
                         {tile_index},
                         {try_option},
-                        f"bifurcation at {tile_index} with {alt_option} failed, go with {try_option} instead",
+                        f"bifurcation at tile {tile_index} with {alt_option} failed, go with {try_option} instead",
                         True)
 
                     backup = deepcopy(S)

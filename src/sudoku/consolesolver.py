@@ -34,22 +34,41 @@ class ConsoleFormatter(BlankFormatter):
     solution steps are stringed together in the console or if the previous step
     is consecutively removed. 
     """
-    H_LINE_CHAR = u"\u2500"
-    V_LINE_CHAR = u"\u2502"
-    CROSS_CHAR = u"\u253c"
-    LU_ANGLE = u"\u256d"
-    LL_ANGLE = u"\u2570"
-    RU_ANGLE = u"\u256e"
-    RL_ANGLE = u"\u256f"
-    L_T = u"\u251c"
-    R_T = u"\u2524"
-    U_T = u"\u252c"
-    D_T = u"\u2534"
+    UNICODE_CHARS = {
+        "H_LINE_CHAR": u"\u2500",
+        "V_LINE_CHAR": u"\u2502",
+        "CROSS_CHAR": u"\u253c",
+        "LU_ANGLE": u"\u256d",
+        "LL_ANGLE": u"\u2570",
+        "RU_ANGLE": u"\u256e",
+        "RL_ANGLE": u"\u256f",
+        "L_T": u"\u251c",
+        "R_T": u"\u2524",
+        "U_T": u"\u252c",
+        "D_T": u"\u2534"
+    }
 
-    def __init__(self, render_message=True, flush=False) -> None:
+    ASCII_CHARS = {
+        "H_LINE_CHAR": "-",
+        "V_LINE_CHAR": "|",
+        "CROSS_CHAR": "+",
+        "LU_ANGLE": "+",
+        "LL_ANGLE": "+",
+        "RU_ANGLE": "+",
+        "RL_ANGLE": "+",
+        "L_T": "+",
+        "R_T": "+",
+        "U_T": "+",
+        "D_T": "+"
+    }
+    
+
+    def __init__(self, render_message=True, flush=False, unicode=True) -> None:
         self.flush = flush
         self.r_msg = render_message
-    
+        for key, value in self.UNICODE_CHARS.items() if unicode else self.ASCII_CHARS.items():
+            self.__setattr__(key, value)
+
     def _format_tile(self, options: set, considered: set, affected: set) -> str:
         colorized = []
         for opt in options:
@@ -120,7 +139,7 @@ def _create_solver(stepper: StepperBase) -> FmtSolvingMethod:
         ], stepper)
 
 
-def solve(sudoku: Sudoku, stepping: str, flush: bool = False) -> Sudoku:
+def solve(sudoku: Sudoku, stepping: str, flush: bool = False, unicode: bool = True) -> Sudoku:
     """
     Solve a Sudoku given as `Sudoku` object (possibly obtained by the `load`
     function). Use the `stepping` parameter to choose between the steppers 
@@ -133,12 +152,13 @@ def solve(sudoku: Sudoku, stepping: str, flush: bool = False) -> Sudoku:
         sudoku: The puzzle to solve
         stepping: Specify what solving steps to render
         flush: Set to `True` to erase the previous solving step
+        unicode: Use Unicode box-drawing characters
 
     Returns:
         The solved puzzle
     """
 
-    stepper = _STEPPERS[stepping](ConsoleFormatter(flush=flush), ConsoleTrigger())
+    stepper = _STEPPERS[stepping](ConsoleFormatter(flush=flush, unicode=unicode), ConsoleTrigger())
     solver = _create_solver(stepper)
     s = solver.launch(sudoku)
     stepper.show(s)
