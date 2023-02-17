@@ -52,6 +52,7 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.highlight
   - pymdownx.inlinehilite
+  - pymdownx.keys
   - attr_list
   - md_in_html
   - toc:
