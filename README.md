@@ -73,7 +73,7 @@ Refer to the [docs](docs/content/index.md) to get an in-depth picture of the def
 
 Instead of using the default solver, the `sudoku.generate_solver` function may be used to manually specify the solving methods one likes to use. This solver-generator is based on the idea of extending the solver by implementing custom solving methods. Such solving methods should inherit from the `sudoku.solvingmethods.FmtSolvingMethod` abstract class. Observe that this feature is still in development. The creation of custom solver classes is not straight forward at this stage and would require the user to dig into the code of the present solving methods.
 
-An example that makes use of this function to customize the solver can be found in the [use_customsolver.py](use/use_customsolver.py) file. This script also provides a function to plot the solved puzzle using [matplotlib](https://github.com/matplotlib/matplotlib). The corresponding result for the puzzle from above can then be rendered as:
+An example that makes use of this function to customize the solver can be found in the [use_customsolver.py](examples/std_examples/use_customsolver.py) file. This script also provides a function to plot the solved puzzle using [matplotlib](https://github.com/matplotlib/matplotlib). The corresponding result for the puzzle from above can then be rendered as:
 
 ![solved.png](img/solved.png)
 
