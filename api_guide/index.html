@@ -350,8 +350,172 @@
 <p>The creation of the <strong>solving method</strong>, <strong>stepper</strong> and <strong>formatting</strong> classes is thereby illustrated by reproducing classes that are already integral part of this package. To avoid duplicate code, there's no example code for the largest part of this guide. We only provide a small snippet to illustrate the usage of the classes you are to create thereinafter.</p>
 <h2 id="solving-methods">Solving Methods<a class="headerlink" href="#solving-methods" title="Permanent link">#</a></h2>
 <p>Let us begin by reimplementing the most basic of all solving methods. </p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">LoneSingles</span><span class="p">(</span><span class="n">FmtSolvingMethod</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The most basic solving method that is used to initiate the solving process.</span>
+<span class="sd">    This method simply searches for the tiles whose value has already been </span>
+<span class="sd">    fixed and removes the respective number from its neighboring tiles.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="nf">_lone_single_in_kind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">:</span> <span class="n">Sudoku</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">container_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">container</span> <span class="o">=</span> <span class="n">S</span><span class="o">.</span><span class="n">containers</span><span class="p">[</span><span class="n">kind</span><span class="p">][</span><span class="n">container_index</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">tile_index</span> <span class="ow">in</span> <span class="n">container</span><span class="p">:</span>
+            <span class="n">tile</span> <span class="o">=</span> <span class="n">S</span><span class="o">.</span><span class="n">tiles</span><span class="p">[</span><span class="n">tile_index</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">tile</span><span class="o">.</span><span class="n">n_options</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">affected</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">container</span><span class="p">)</span><span class="o">-</span><span class="p">{</span><span class="n">tile_index</span><span class="p">}:</span>
+                    <span class="k">if</span> <span class="n">S</span><span class="o">.</span><span class="n">violated</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_stepper</span><span class="o">.</span><span class="n">set_consideration</span><span class="p">(</span>
+                        <span class="p">{</span><span class="n">tile_index</span><span class="p">},</span> <span class="n">tile</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> 
+                        <span class="sa">f</span><span class="s2">"""the value of tile </span><span class="si">{</span><span class="n">tile_index</span><span class="si">}</span><span class="s2"> was fixed to </span>
+<span class="s2">                        </span><span class="si">{</span><span class="n">tile</span><span class="o">.</span><span class="n">options</span><span class="si">}</span><span class="s2">; this option is thus removed from the </span>
+<span class="s2">                        remaining tiles in </span>
+<span class="s2">                        </span><span class="si">{</span><span class="n">CONTAINER_NAMES</span><span class="p">[</span><span class="n">kind</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">container_index</span><span class="si">}</span><span class="s2">"""</span><span class="p">,</span>
+                        <span class="kc">False</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">affected</span><span class="p">,</span> <span class="n">tile</span><span class="o">.</span><span class="n">options</span><span class="p">):</span>
+                        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span> 
+        <span class="k">return</span> <span class="n">success</span>
+
+    <span class="k">def</span> <span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">:</span> <span class="n">Sudoku</span><span class="p">):</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">S</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">S</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">CONTAINER_TYPES</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">kind_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">S</span><span class="o">.</span><span class="n">violated</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lone_single_in_kind</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">kind_index</span><span class="p">):</span>
+                        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_advance</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fall_back</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
 <h2 id="steppers">Steppers<a class="headerlink" href="#steppers" title="Permanent link">#</a></h2>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">AnyStep</span><span class="p">(</span><span class="n">StepperBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Stepper class to transfer information about every elimination step to the</span>
+<span class="sd">    frontend.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="nf">set_consideration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tiles</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">interesting</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">considered_tiles</span> <span class="o">=</span> <span class="n">tiles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">considered_options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solving_message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interesting</span> <span class="o">=</span> <span class="n">interesting</span>
+
+    <span class="k">def</span> <span class="nf">show_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sudoku</span><span class="p">:</span> <span class="n">Sudoku</span><span class="p">,</span> <span class="n">affected_tiles</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="n">affected_options</span><span class="p">:</span> <span class="nb">set</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Invoke the render to print the solving step based on the previously</span>
+<span class="sd">        specified [consideration][sudoku.stepping.StepperBase.set_consideration].</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sudoku: The concerned puzzle</span>
+<span class="sd">            affected_tiles: The tiles affected by the present configuration</span>
+<span class="sd">                            of the neighboring tiles</span>
+<span class="sd">            affected_options: The candidate to be removed from the latter tiles </span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_increase</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="n">sudoku</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">considered_tiles</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">considered_options</span><span class="p">,</span> 
+            <span class="n">affected_tiles</span><span class="p">,</span> 
+            <span class="n">affected_options</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solving_message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trg</span><span class="o">.</span><span class="n">trigger_next_step</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
 <h2 id="formatters">Formatters<a class="headerlink" href="#formatters" title="Permanent link">#</a></h2>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>
+</code></pre></div></td></tr></table></div>
 <h2 id="assembly">Assembly<a class="headerlink" href="#assembly" title="Permanent link">#</a></h2>
 </article>
 </div>
