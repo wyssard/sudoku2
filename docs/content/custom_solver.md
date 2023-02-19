@@ -10,7 +10,7 @@ No worries, the solution to your problem is already at hand. This guide will sho
 
 ## The `generate_solver` Function
 
-The assembly of a solver happens by means of the [`generate_solver`][sudolu.solvertools.generate_solver] function which can be imported directly form the `sudoku` parent package:
+The assembly of a solver happens by means of the [`generate_solver`][sudoku.solvertools.generate_solver] function which can be imported directly form the `sudoku` parent package:
 
 ```py linenums="1"
 from sudoku import generate_solver
