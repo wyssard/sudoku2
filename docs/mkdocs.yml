@@ -8,7 +8,7 @@ nav:
     - Overview: index.md
     - Solving Process: solving_process.md
   - Usage: 
-    - Standard Solver: standard_solvers.md
+    - Standard Solver: standard_solver.md
     - Custom Solver: custom_solver.md
     - API Guide: api_guide.md
   - API: api/
@@ -19,10 +19,10 @@ theme:
   language: en
   font:
     text: Lora
-
   features:
     - navigation.tabs
     - navigation.top
+    - navigation.footer
     - content.code.copy
   palette:
     - primary: white

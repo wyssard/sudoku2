@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from .structure import Sudoku
 from .stepping import StepperBase
-from .solvingmethods import FmtSolvingMethod, RemoveAndUpdate, NTilesNOptions
+from .solvingmethods import FmtSolvingMethod, RemoveAndUpdate, NTilesNOptions, LoneSingles
 
 from csv import reader, writer
 from pathlib import Path
@@ -35,7 +35,7 @@ def generate_solver(method_order: Tuple[FmtSolvingMethod], stepper: StepperBase)
     remover = RemoveAndUpdate(stepper)
     init_methods: List[FmtSolvingMethod] = []
 
-    init_run = NTilesNOptions(1, stepper, remover)
+    init_run = LoneSingles(stepper, remover)
 
     for method in method_order:
         method.set_stepper(stepper)
