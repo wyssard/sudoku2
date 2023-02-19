@@ -6,11 +6,11 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Valentin Wyss" name="author"/>
-<link href="../standard_solver/" rel="prev"/>
-<link href="../api_guide/" rel="next"/>
+<link href="../solving_process/" rel="prev"/>
+<link href="../custom_solver/" rel="next"/>
 <link href="../assets/images/favicon.png" rel="icon"/>
 <meta content="mkdocs-1.4.2, mkdocs-material-9.0.13" name="generator"/>
-<title>Custom Solver - Sudokumentation</title>
+<title>Standard Solver - Sudokumentation</title>
 <link href="../assets/stylesheets/main.ffa9267a.min.css" rel="stylesheet"/>
 <link href="../assets/stylesheets/palette.a0c5b2b5.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -36,7 +36,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#create-a-custom-solver">
+<a class="md-skip" href="#using-the-standard-solver">
           Skip to content
         </a>
 </div>
@@ -60,7 +60,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              Custom Solver
+              Standard Solver
             
           </span>
 </div>
@@ -121,7 +121,7 @@
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link md-tabs__link--active" href="../standard_solver/">
+<a class="md-tabs__link md-tabs__link--active" href="./">
         Usage
       </a>
 </li>
@@ -193,19 +193,14 @@
           Usage
         </label>
 <ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../standard_solver/">
-        Standard Solver
-      </a>
-</li>
 <li class="md-nav__item md-nav__item--active">
 <input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
 <label class="md-nav__link md-nav__link--active" for="__toc">
-          Custom Solver
+          Standard Solver
           <span class="md-nav__icon md-icon"></span>
 </label>
 <a class="md-nav__link md-nav__link--active" href="./">
-        Custom Solver
+        Standard Solver
       </a>
 <nav aria-label="Table of contents" class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">
@@ -214,32 +209,27 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#the-generate_solver-function">
-    The generate_solver Function
+<a class="md-nav__link" href="#load">
+    Load
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#solving-algorithms">
-    Solving Algorithms
+<a class="md-nav__link" href="#solve">
+    Solve
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#stepping">
-    Stepping
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#assembly">
-    Assembly
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#sum-up">
-    Sum Up
+<a class="md-nav__link" href="#save">
+    Save
   </a>
 </li>
 </ul>
 </nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../custom_solver/">
+        Custom Solver
+      </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../api_guide/">
@@ -324,28 +314,18 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#the-generate_solver-function">
-    The generate_solver Function
+<a class="md-nav__link" href="#load">
+    Load
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#solving-algorithms">
-    Solving Algorithms
+<a class="md-nav__link" href="#solve">
+    Solve
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#stepping">
-    Stepping
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#assembly">
-    Assembly
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#sum-up">
-    Sum Up
+<a class="md-nav__link" href="#save">
+    Save
   </a>
 </li>
 </ul>
@@ -355,65 +335,93 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<h1 id="create-a-custom-solver">Create a Custom Solver<a class="headerlink" href="#create-a-custom-solver" title="Permanent link">#</a></h1>
-<p>Did you ever get bored of the solving algorithms used by the <a href="../standard_solver/">default solver</a> or wanted to print the solving steps using a more interesting frontend than the console? </p>
-<p>No worries, the solution to your problem is already at hand. This guide will show you how to build your own solver by assembling a solver similar to the standard configuration. Understanding how such a solver is put together will bring you into the position to implement your own behavior and inject it into a solver object. </p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>In a nutshell, the <a href="../api_guide/">API Guide</a> explains how to extend the basic capabilities with new behavior by means of inheritance whereas this guide shows you how your custom objects are eventually composed to a solver. You can find the source code for this guide under <code>examples/doc_reference</code> in the <a href="https://github.com/wyssard/sudoku2">source repository</a>. To get the expected behavior, make sure that you set <code>doc_reference</code> as your working directory.</p>
+<h1 id="using-the-standard-solver">Using the Standard Solver<a class="headerlink" href="#using-the-standard-solver" title="Permanent link">#</a></h1>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can find the code of this guide under <code>examples/doc_reference</code> in the <a href="https://github.com/wyssard/sudoku2">source repository</a>. Make sure so set <code>doc_reference</code> as working directory to get the expected behavior.</p>
 </div>
-<h2 id="the-generate_solver-function">The <code>generate_solver</code> Function<a class="headerlink" href="#the-generate_solver-function" title="Permanent link">#</a></h2>
-<p>The assembly of a solver happens by means of the [<code>generate_solver</code>][sudolu.solvertools.generate_solver] function which can be imported directly form the <code>sudoku</code> parent package:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">sudoku</span> <span class="kn">import</span> <span class="n">generate_solver</span>
+<p>After having installed the package to your environment, the pre-constructed solver can be easily accessed in a functional way by means of the functions <a class="autorefs autorefs-internal" href="../api/sudoku/solvertools/#sudoku.solvertools.load"><code>load</code></a>, <a class="autorefs autorefs-internal" href="../api/sudoku/consolesolver/#sudoku.consolesolver.solve"><code>solve</code></a> and <a class="autorefs autorefs-internal" href="../api/sudoku/solvertools/#sudoku.solvertools.save"><code>save</code></a>. Begin by importing the respective functions from <code>sudoku</code>:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">sudoku</span> <span class="kn">import</span> <span class="n">load</span><span class="p">,</span> <span class="n">solve</span><span class="p">,</span> <span class="n">save</span>
 </code></pre></div></td></tr></table></div>
-<h2 id="solving-algorithms">Solving Algorithms<a class="headerlink" href="#solving-algorithms" title="Permanent link">#</a></h2>
-<p>Considering its documentation, we see that this function first of all required a list of solving algorithms. As you will see in the <a href="../api_guide/">API Guide</a>, solving algorithms are objects inheriting from <a class="autorefs autorefs-internal" href="../api/sudoku/solvingmethods/#sudoku.solvingmethods.FmtSolvingMethod"><code>FmtSolvingMethod</code></a>. Instead of creating new algorithms, let us import a few of the prebuilt objects from <code>sudoku</code>:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">sudoku</span> <span class="kn">import</span> <span class="n">ScaledXWing</span><span class="p">,</span> <span class="n">YWing</span><span class="p">,</span> <span class="n">Bifurcation</span>
+<h2 id="load">Load<a class="headerlink" href="#load" title="Permanent link">#</a></h2>
+<p>Use the <a class="autorefs autorefs-internal" href="../api/sudoku/solvertools/#sudoku.solvertools.load"><code>load</code></a> function to create and return a <a class="autorefs autorefs-internal" href="../api/sudoku/structure/#sudoku.structure.Sudoku"><code>Sudoku</code></a> object from the unsolved puzzle. The puzzle must be stored as <code>csv</code> file whose entries represent the initial configuration of the Sudoku grid. Any unspecified tiles take the value <code>0</code> as placeholder. Let's, e.g., consider the puzzle represented by the content of <code>example.csv</code> (the file should be stored in your working directory). </p>
+<div class="highlight"><span class="filename">example.csv</span><pre><span></span><code>0, 0, 1, 0, 0, 4, 0, 8, 0
+0, 0, 5, 0, 0, 0, 0, 0, 7
+4, 7, 0, 0, 3, 0, 0, 6, 0
+6, 4, 0, 0, 0, 8, 0, 0, 9
+1, 0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 5, 0, 8, 0, 0
+0, 0, 0, 2, 0, 0, 0, 3, 0
+0, 0, 7, 0, 0, 0, 0, 0, 0
+8, 9, 0, 0, 0, 5, 0, 0, 6
+</code></pre></div>
+<p>Load it into a <code>Sudoku</code> structure by:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">s</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s2">"example.csv"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Since my naming is not yet fully consistent with the established algorithm names, I recommend considering the <a class="autorefs autorefs-internal" href="../api/sudoku/solvingmethods/#sudoku.solvingmethods">documentations</a> of the respective solving methods.</p>
-</div>
-<h2 id="stepping">Stepping<a class="headerlink" href="#stepping" title="Permanent link">#</a></h2>
-<p>When going on to the second argument of <code>generate_solver</code>, we see that a so-called <code>stepper</code> is required. Before adding such a <a class="autorefs autorefs-internal" href="../api/sudoku/stepping/#sudoku.stepping.StepperBase"><code>StepperBase</code></a> object to our collection of solving methods, let me explain its purpose: </p>
-<p>As you can see in the <a href="../solving_process/#flowchart">Flowchart</a>, a rendering step is triggered after successful elimination of a candidate and the program awaits a certain signal before continuing. In this whole process, the <strong>stepper</strong> works a an intermediate object that stores the information about the solving step and that decides whether to trigger the rendering process. That is, depending on the stepper object used, certain solving steps may or may not be printed. In order for such a stepper to work, it needs to know what rendering frontend to use and what signal to await to let the solver continue its work after rendering. Thereby the rendering frontend is an object inheriting from <a class="autorefs autorefs-internal" href="../api/sudoku/formatting/#sudoku.formatting.BlankFormatter"><code>BlankFormatter</code></a> while the trigger to continue to solving process is represented by an object based on <a class="autorefs autorefs-internal" href="../api/sudoku/stepping/#sudoku.stepping.NoTrigger"><code>NoTrigger</code></a>.</p>
-<p>For this example, let us import the <a class="autorefs autorefs-internal" href="../api/sudoku/stepping/#sudoku.stepping.InterestingStep"><code>InterestingStep</code></a> stepper, which omits rendering certain solving steps based on trivial considerations. </p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">sudoku</span> <span class="kn">import</span> <span class="n">InterestingStep</span>
+<h2 id="solve">Solve<a class="headerlink" href="#solve" title="Permanent link">#</a></h2>
+<p>Invoke the solving process by passing the <code>Sudoku</code> object to the <a class="autorefs autorefs-internal" href="../api/sudoku/consolesolver/#sudoku.consolesolver.solve"><code>solve</code></a> function. Before returning the solved puzzle, the solver will guide you through the solving process by printing some of the solving steps to the console (including the final result). A <strong>solving step</strong>, thereby, refers to any operation that lets us exclude one of the remaining candidates of an 'unsolved' tile.</p>
+<p>Use the second argument of the solve function to decide what solving steps to print. Refer to the documentation of <a class="autorefs autorefs-internal" href="../api/sudoku/consolesolver/#sudoku.consolesolver.solve"><code>solve</code></a> to see what options are available. In this example, we will only print some less trivial steps by passing <code class="highlight"><span class="s2">"interesting"</span></code> as argument. Moreover, for the purpose of this guide, we're using ASCII characters to format the output by setting the <code>unicode</code> keyword to <code>False</code>.</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">solved</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s2">"interesting"</span><span class="p">,</span> <span class="n">unicode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<p>Since we want to reproduce the standard solver, we must tell the stepper to use the console as frontend and to listen for the <span class="keys"><kbd class="key-enter">Enter</kbd></span> key to be pressed to resume. The respective classes are given by:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">sudoku</span> <span class="kn">import</span> <span class="n">ConsoleFormatting</span><span class="p">,</span> <span class="n">ConsoleTrigger</span>
+<p>The console output contains the present state of the puzzle as well as information about the conclusions made to remove certain candidates in the shown step. Observe that both the affected candidates (i.e. those we are to remove) and those we considered to draw conclusions are highlighted by means of ANSI escape codes. Rendering thus depends on the console you're using. A typical output (without highlighting the considered candidates) could look like:</p>
+<div class="highlight"><pre><span></span><code>solving step 410: tile 16 is the only tile in column 7 with 4 as option
+status: ok
++-----------------------+-----------------------+-----------------------+
+| [9]    [6]    [1]     | [5]    [7]    [4]     | [3]    [8]    [2]     |
+| [3]    [8]    [5]     | [6,9]  [6,9]  [2]     | [1,4]  [1,4,9][7]     |
+| [4]    [7]    [2]     | [8]    [3]    [1]     | [9]    [6]    [5]     |
++-----------------------+-----------------------+-----------------------+
+| [6]    [4]    [3]     | [1]    [2]    [8]     | [5,7]  [5,7]  [9]     |
+| [1]    [5]    [8]     | [7]    [4]    [9]     | [6]    [2]    [3]     |
+| [7]    [2]    [9]     | [6]    [5]    [3]     | [8]    [1]    [4]     |
++-----------------------+-----------------------+-----------------------+
+| [5]    [1]    [6]     | [2]    [9]    [7]     | [4]    [3]    [8]     |
+| [2]    [3]    [7]     | [4]    [8]    [6]     | [5]    [9]    [1]     |
+| [8]    [9]    [4]     | [3]    [1]    [5]     | [2]    [7]    [6]     |
++-----------------------+-----------------------+-----------------------+
+
+next step: (press ENTER)
+</code></pre></div>
+<p>Eventually, the solved puzzle is rendered to the console once more before the <a class="autorefs autorefs-internal" href="../api/sudoku/consolesolver/#sudoku.consolesolver.solve"><code>solve</code></a> function returns.</p>
+<div class="highlight"><pre><span></span><code>solving step 415: puzzle solved
+status: ok
++-----------+-----------+-----------+
+| [9][6][1] | [5][7][4] | [3][8][2] |
+| [3][8][5] | [9][6][2] | [1][4][7] |
+| [4][7][2] | [8][3][1] | [9][6][5] |
++-----------+-----------+-----------+
+| [6][4][3] | [1][2][8] | [7][5][9] |
+| [1][5][8] | [7][4][9] | [6][2][3] |
+| [7][2][9] | [6][5][3] | [8][1][4] |
++-----------+-----------+-----------+
+| [5][1][6] | [2][9][7] | [4][3][8] |
+| [2][3][7] | [4][8][6] | [5][9][1] |
+| [8][9][4] | [3][1][5] | [2][7][6] |
++-----------+-----------+-----------+
+</code></pre></div>
+<h2 id="save">Save<a class="headerlink" href="#save" title="Permanent link">#</a></h2>
+<p>You may then want to write the solved puzzle to a file named, e.g., <code>solved.csv</code> by using the <a class="autorefs autorefs-internal" href="../api/sudoku/solvertools/#sudoku.solvertools.save"><code>save</code></a> function:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">save</span><span class="p">(</span><span class="n">solved</span><span class="p">,</span> <span class="s2">"solved.csv"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<p>and the stepper is constructed via:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">stepper</span> <span class="o">=</span> <span class="n">InterestingStep</span><span class="p">(</span><span class="n">ConsoleFormatter</span><span class="p">(),</span> <span class="n">ConsoleTrigger</span><span class="p">())</span>
-</code></pre></div></td></tr></table></div>
-<h2 id="assembly">Assembly<a class="headerlink" href="#assembly" title="Permanent link">#</a></h2>
-<p>Now, we finally have all the required objects at hand to build the solver. When passing the solving algorithms to <code>generate_solver</code>, its important to understand the implications of the list's order: As you can see in the <a href="../solving_process/#flowchart">Flowchart</a>, depending on the success of a solving method, the program decides what algorithm to proceed with. Thereby, the <code>n+1</code> element of the list of algorithms is automatically considered to be the <em>fallback</em> of the element at position <code>n</code>. Success of an algorithm, on the other hand, implies that the solver will continue with the element a position <code>0</code>, preferably the most basic algorithm. Failure of the last element will terminate the program as the solver is unable to make any further progress.</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">solver</span> <span class="o">=</span> <span class="n">generate_solver</span><span class="p">([</span><span class="n">ScaledXWing</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">YWing</span><span class="p">(),</span> <span class="n">Bifurcation</span><span class="p">()],</span> <span class="n">stepper</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-<p>And there you go, try to solve the example puzzle from the <a href="../standard_solver/">previous guide</a> by:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">7</span>
-<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">sudoku</span> <span class="kn">import</span> <span class="n">load</span>
-<span class="n">solved</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">load</span><span class="p">(</span><span class="s2">"example.csv"</span><span class="p">))</span>
-</code></pre></div></td></tr></table></div>
-<h2 id="sum-up">Sum Up<a class="headerlink" href="#sum-up" title="Permanent link">#</a></h2>
-<p>The whole program can now compactly be written as:</p>
+<div class="highlight"><span class="filename">solved.csv</span><pre><span></span><code>9,6,1,5,7,4,3,8,2
+3,8,5,9,6,2,1,4,7
+4,7,2,8,3,1,9,6,5
+6,4,3,1,2,8,7,5,9
+1,5,8,7,4,9,6,2,3
+7,2,9,6,5,3,8,1,4
+5,1,6,2,9,7,4,3,8
+2,3,7,4,8,6,5,9,1
+8,9,4,3,1,5,2,7,6
+</code></pre></div>
+<p>The whole program can now be compactly written as</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span>
-<span class="normal">5</span>
-<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">sudoku</span> <span class="kn">import</span> <span class="n">generate_solver</span><span class="p">,</span> <span class="n">ScaledXWing</span><span class="p">,</span> <span class="n">YWing</span><span class="p">,</span> <span class="n">Bifurcation</span><span class="p">,</span> <span class="n">InterestingStep</span><span class="p">,</span> <span class="n">ConsoleFormatter</span><span class="p">,</span> <span class="n">ConsoleTrigger</span><span class="p">,</span> <span class="n">load</span>
-<span class="n">solver</span> <span class="o">=</span> <span class="n">generate_solver</span><span class="p">(</span>
-    <span class="p">[</span><span class="n">ScaledXWing</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">YWing</span><span class="p">(),</span> <span class="n">Bifurcation</span><span class="p">()],</span>
-    <span class="n">InterestingStep</span><span class="p">(</span><span class="n">ConsoleFormatter</span><span class="p">(),</span> <span class="n">ConsoleTrigger</span><span class="p">())</span>
-<span class="p">)</span>
-<span class="n">solved</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">load</span><span class="p">(</span><span class="s2">"example.csv"</span><span class="p">))</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">sudoku</span> <span class="kn">import</span> <span class="n">load</span><span class="p">,</span> <span class="n">solve</span><span class="p">,</span> <span class="n">save</span>
+<span class="n">save</span><span class="p">(</span><span class="n">solve</span><span class="p">(</span><span class="n">load</span><span class="p">(</span><span class="s2">"example.csv"</span><span class="p">),</span> <span class="s2">"interesting"</span><span class="p">,</span> <span class="n">unicode</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="s2">"solved.csv"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>A similar example with a little extra (graphical output using <a href="https://matplotlib.org/">matplotlib</a>) can be found in the <a href="https://github.com/wyssard/sudoku2">source repository</a> under <code>examples/std_examples</code>.</p>
+<p>Find a similar example in the <a href="https://github.com/wyssard/sudoku2">source repository</a> under <code>examples/std_examples</code>.</p>
 </div>
-<p>Follow the <a href="../api_guide/">API Guide</a> to implement your own <strong>solving algorithms</strong>, <strong>steppers</strong> and <strong>formatters</strong>.</p>
 </article>
 </div>
 </div>
@@ -424,7 +432,7 @@
 </main>
 <footer class="md-footer">
 <nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Standard Solver" class="md-footer__link md-footer__link--prev" href="../standard_solver/" rel="prev">
+<a aria-label="Previous: Solving Process" class="md-footer__link md-footer__link--prev" href="../solving_process/" rel="prev">
 <div class="md-footer__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
 </div>
@@ -433,17 +441,17 @@
 <span class="md-footer__direction">
                   Previous
                 </span>
-                Standard Solver
+                Solving Process
               </div>
 </div>
 </a>
-<a aria-label="Next: API Guide" class="md-footer__link md-footer__link--next" href="../api_guide/" rel="next">
+<a aria-label="Next: Custom Solver" class="md-footer__link md-footer__link--next" href="../custom_solver/" rel="next">
 <div class="md-footer__title">
 <div class="md-ellipsis">
 <span class="md-footer__direction">
                   Next
                 </span>
-                API Guide
+                Custom Solver
               </div>
 </div>
 <div class="md-footer__button md-icon">
