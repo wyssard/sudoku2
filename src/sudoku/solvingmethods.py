@@ -180,7 +180,6 @@ class FmtParamSolvingMethod(FmtSolvingMethod):
             raise ValueError(f"parameter of {self.__class__.__name__} solving method must be larger or equal to {self._N_MIN} but {param} is given")
 
 
-
 class RemoveAndUpdate(FmtSolvingBase):
     """
     Special solving-method class whose `launch` method implements the 
@@ -337,13 +336,61 @@ class RemoveAndUpdate(FmtSolvingBase):
             return False
 
 
+class LoneSingles(FmtSolvingMethod):
+    """
+    The most basic solving method that is used to initiate the solving process.
+    This method simply searches for the tiles whose value has already been 
+    fixed and removes the respective number from its neighboring tiles.
+    """
+
+    def _lone_single_in_kind(self, S: Sudoku, kind: str, container_index: int):
+        success = False
+        container = S.containers[kind][container_index]
+        for tile_index in container:
+            tile = S.tiles[tile_index]
+            if tile.n_options == 1:
+                for affected in set(container)-{tile_index}:
+                    if S.violated:
+                        return False
+                    
+                    self._stepper.set_consideration(
+                        {tile_index}, tile.options, 
+                        f"""the value of tile {tile_index} was fixed to 
+                        {tile.options}; this option is thus removed from the 
+                        remaining tiles in 
+                        {CONTAINER_NAMES[kind]} {container_index}""",
+                        False)
+
+                    if self._remove.launch(S, affected, tile.options):
+                        success = True 
+        return success
+
+    def launch(self, S: Sudoku):
+        success = False
+        if S.done:
+            return S
+        else:
+            for kind in CONTAINER_TYPES:
+                for kind_index in range(9):
+                    if S.violated:
+                        return False
+                    
+                    if self._lone_single_in_kind(S, kind, kind_index):
+                        success = True
+            
+            if success:
+                return self._advance.launch(S)
+            else:
+                return self._fall_back.launch(S)
+
 class NTilesNOptions(FmtParamSolvingMethod):
     """
     A solving method that checks if a set of the same `n` options is found `n`
     times in the same row, column or square. If, e.g., the set of candidate
     options `{1,2}` is found twice in the same row, i.e., if two separate tiles
     have the exact same two candidates left, no other tile in the same row may
-    take any of the latter two values.
+    take any of the latter two values. Notice that for `n=1`, this method is 
+    equivalent to `LoneSingles`.
     """
 
     _N_MIN = 1
@@ -407,7 +454,6 @@ class NTilesNOptions(FmtParamSolvingMethod):
 
                     if self._n_times_n_options_removal_container(S, kind, kind_index, self._n):
                         success = True
-                        # return self._advance.launch(S)
 
             if success:
                 return self._advance.launch(S)
@@ -635,4 +681,3 @@ class Bifurcation(FmtSolvingMethod):
                 return out
     
         return self._fall_back.launch(S)
-
